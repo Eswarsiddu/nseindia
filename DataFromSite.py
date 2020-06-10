@@ -1,61 +1,52 @@
-import os
-from time import time
+from Constants import Constants as Const
+import requests
 
-from Data import data
 
-try:
-    from selenium import webdriver
-except:
-    print("selenium not installed")
-    os.system("python -m pip install selenium")
-    from selenium import webdriver
+class DataRequest:
+    def __init__(self, Data):
+        self.Data = Data
 
-class Getting_data_from_site:
-    def __init__(self, lowrange, highrange, Nifty_url, BankNifty_url, basexpath,driverpath):
-        self.Nifty_url = Nifty_url
-        self.BankNifty_url = BankNifty_url
-        self.lowrange = lowrange
-        self.highrange = highrange
-        self.starting = True
-        self.basexpath = basexpath
-        self.driverpath = driverpath
-        self.options = webdriver.FirefoxOptions()
-        self.options.add_argument("--headless")
-        # self.options.set_headless(True)
+    def calculate_price(self, n):
+        n = int(n)
+        n -= (n % 50)
+        return n
 
-    def readdata(self):
-        data_now = []
-        browser = None
-        try:
-            browser = webdriver.Firefox(
-                executable_path=self.driverpath,
-                firefox_options=self.options
-            )
+    def get_data(self, body, options):
+        for data in body:
+            strike_price: int = data['strikePrice']
+            options[strike_price]: dict = {}
+            for j in ('CE', 'PE'):
+                temp = data[j]
+                options[strike_price][j] = {Const.OI: temp['openInterest'],
+                                            Const.CHANGE_IN_OI: temp['changeinOpenInterest'],
+                                            Const.LTP: temp['lastPrice']
+                                            }
 
-            print("link opening", end="")
-            browser.get(self.Nifty_url)
-            print(", opened", end="")
-            niftyprice = browser.find_element_by_xpath('/html/body/div[2]/div[3]/div[2]/table[1]/tbody/tr/td[2]/div/span[1]/b')
+    def market_status(self, time):
+        if time == '15:30:00':
+            return False
+        return True
 
-            date_time = browser.find_element_by_xpath('/html/body/div[2]/div[3]/div[2]/table[1]/tbody/tr/td[2]/div/span[2]')
-            print("nifty[rice:",niftyprice)
-            print("datetimne:",date_time)
-            rows = browser.find_elements_by_xpath(self.basexpath)
-            for i in range(1, len(rows)):
-                row = browser.find_elements_by_xpath(self.basexpath + '[' + str(i) + ']/td')
-                strikeprice = float(row[11].text)
-                if self.lowrange <= strikeprice <= self.highrange:
-                    data_now.append(data())
-                    data_now[-1].getdata(row)
-        except Exception as e:
-            print("error:"+str(e))
-        finally:
-            try:
-                browser.close()
-            except:
-                print("browser already closed")
-            browser.quit()
-            print("quiting browser")
-        print("and closed")
-        return data_now
+    def get_options(self, options, request, previous_time_stamp):
+        body = requests.get(url=request,
+                            headers=Const.HEADERS
+                            ).json()
+        timestamp = body['records']['timestamp'].split(" ")
 
+        # checking market status
+        if self.market_status(time=timestamp[1]):
+            options[Const.MARKET_STATUS] = True
+        else:
+            options[Const.MARKET_STATUS] = False
+
+        options[Const.TIME] = timestamp[1]
+        options[Const.DATE] = timestamp[0]
+        price = body['records']['underlyingValue']
+        turnover_price = self.calculate_price(price)
+        options[Const.PRICE] = price
+        options[Const.TURNOVER_PRICE] = turnover_price
+        self.get_data(body=body['filtered']['data'], options=options)
+
+    def request_data(self):
+        self.get_options(options=self.Data[Const.NIFTY], request=Const.URLS[Const.NIFTY])
+        self.get_options(options=self.Data[Const.BANK_NIFTY], request=Const.URLS[Const.BANK_NIFTY])
