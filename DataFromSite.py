@@ -2,51 +2,78 @@ from Constants import Constants as Const
 import requests
 
 
-class DataRequest:
-    def __init__(self, Data):
-        self.Data = Data
+def calculate_price(n):
+    n = int(n)
+    n -= (n % 50)
+    return n
 
-    def calculate_price(self, n):
-        n = int(n)
-        n -= (n % 50)
-        return n
 
-    def get_data(self, body, options):
-        for data in body:
-            strike_price: int = data['strikePrice']
+def get_data(body, options):
+    for data in body:
+        strike_price: int = data['strikePrice']
+        try:
+            t=options[strike_price]
+        except:
             options[strike_price]: dict = {}
-            for j in ('CE', 'PE'):
-                temp = data[j]
-                options[strike_price][j] = {Const.OI: temp['openInterest'],
-                                            Const.CHANGE_IN_OI: temp['changeinOpenInterest'],
-                                            Const.LTP: temp['lastPrice']
-                                            }
+        for j in ('CE', 'PE'):
+            temp = data[j]
+            try:
+                t = options[strike_price][j]
+            except:
+                options[strike_price][j] = {}
+            options[strike_price][j][Const.OI]= temp['openInterest']
+            options[strike_price][j][Const.CHANGE_IN_OI]= temp['changeinOpenInterest']
+            options[strike_price][j][Const.LTP]=temp['lastPrice']
+            try:
+                trend_change_oi = options[strike_price][j][Const.TREND_CHANGE_OF_OI]
+                trend_change_oi.insert(0, temp['changeinOpenInterest'])
+                if len(trend_change_oi) > 6:
+                    trend_change_oi.pop()
+                if len(trend_change_oi)==1:
+                    options[strike_price][j][Const.TRENDS][0] = trend_change_oi[1] - trend_change_oi[0]
+                for i in range(1, len(trend_change_oi)):
+                    options[strike_price][j][Const.TRENDS][i - 1] = trend_change_oi[i] - trend_change_oi[0]
+                options[strike_price][j][Const.TREND_CHANGE_OF_OI] = trend_change_oi
 
-    def market_status(self, time):
-        if time == '15:30:00':
-            return False
-        return True
+            except:
+                options[strike_price][j][Const.TREND_CHANGE_OF_OI] = [temp['changeinOpenInterest']]
+                options[strike_price][j][Const.TRENDS] = [-1, -1, -1, -1, -1]
+    return options
 
-    def get_options(self, options, request, previous_time_stamp):
-        body = requests.get(url=request,
-                            headers=Const.HEADERS
-                            ).json()
-        timestamp = body['records']['timestamp'].split(" ")
 
-        # checking market status
-        if self.market_status(time=timestamp[1]):
-            options[Const.MARKET_STATUS] = True
-        else:
-            options[Const.MARKET_STATUS] = False
+def market_status(time):
+    if time == '15:30:00':
+        return False
+    return True
 
-        options[Const.TIME] = timestamp[1]
-        options[Const.DATE] = timestamp[0]
-        price = body['records']['underlyingValue']
-        turnover_price = self.calculate_price(price)
-        options[Const.PRICE] = price
-        options[Const.TURNOVER_PRICE] = turnover_price
-        self.get_data(body=body['filtered']['data'], options=options)
+
+def get_options(options, request):
+    body = requests.get(url=request,
+                        headers=Const.HEADERS
+                        ).json()
+    timestamp = body['records']['timestamp'].split(" ")
+
+    # checking market status
+    if market_status(time=timestamp[1]):
+        options[Const.MARKET_STATUS] = True
+    else:
+        options[Const.MARKET_STATUS] = False
+
+    options[Const.TIME] = timestamp[1]
+    options[Const.DATE] = timestamp[0]
+    price = body['records']['underlyingValue']
+    turnover_price = calculate_price(price)
+    options[Const.PRICE] = price
+    options[Const.TURNOVER_PRICE] = turnover_price
+    return get_data(body=body['filtered']['data'], options=options)
+
+
+class DataRequest:
+
+    def __init__(self):
+        self.Data = [{Const.INDEX: "NIFTY"}, {Const.INDEX: "BANK NIFTY"}]
 
     def request_data(self):
-        self.get_options(options=self.Data[Const.NIFTY], request=Const.URLS[Const.NIFTY])
-        self.get_options(options=self.Data[Const.BANK_NIFTY], request=Const.URLS[Const.BANK_NIFTY])
+        self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY], request=Const.URLS[Const.NIFTY])
+        self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY], request=Const.URLS[Const.BANK_NIFTY])
+        return self.Data

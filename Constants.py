@@ -16,6 +16,8 @@ class Constants:
     PRICE: str = "price"
     TURNOVER_PRICE: str = "turnoverprice"
     MARKET_STATUS: str = "marketstatus"
+    TRENDS:str = "trends"
+    TREND_CHANGE_OF_OI: str = "trendschangeoi"
     HEADERS: Dict[str, str] = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate, br',
