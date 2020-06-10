@@ -7,6 +7,8 @@ class Constants:
 
     NIFTY: int = 0
     BANK_NIFTY: int = 1
+    CALLS: str = 'CE'
+    PUTS: str = 'PE'
     INDEX: str = "index"
     OI: str = "oi"
     CHANGE_IN_OI: str = "changeinoi"

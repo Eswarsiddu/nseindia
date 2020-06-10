@@ -15,7 +15,7 @@ def get_data(body, options):
             t=options[strike_price]
         except:
             options[strike_price]: dict = {}
-        for j in ('CE', 'PE'):
+        for j in (Const.CALLS,Const.PUTS):
             temp = data[j]
             try:
                 t = options[strike_price][j]
