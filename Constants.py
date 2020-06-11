@@ -7,6 +7,7 @@ class Constants:
 
     NIFTY: int = 0
     BANK_NIFTY: int = 1
+    STRIKE_PRICE:str = 'strikeprice'
     CALLS: str = 'CE'
     PUTS: str = 'PE'
     INDEX: str = "index"
