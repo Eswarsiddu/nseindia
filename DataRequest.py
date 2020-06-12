@@ -79,6 +79,9 @@ class DataRequest:
             Const.Testing_index += 1
             return Const.testdata[Const.Testing_index]
 
-        self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY], request=Const.URLS[Const.NIFTY])
-        self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY], request=Const.URLS[Const.BANK_NIFTY])
+        self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY],
+                                             request=Const.URLS[Const.NIFTY])
+
+        self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY],
+                                                  request=Const.URLS[Const.BANK_NIFTY])
         return self.Data

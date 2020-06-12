@@ -1,9 +1,12 @@
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
+
+rgbToInt = lambda r,g,b: (r + (g * 256) + (b * 256 * 256))
 
 
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',
                              'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY')
+    EXCEL_STRIKES:str= "strikeprices"
     NIFTY: int = 0
     BANK_NIFTY: int = 1
     STRIKE_PRICE: str = 'strikeprice'
@@ -20,7 +23,16 @@ class Constants:
     MARKET_STATUS: str = "marketstatus"
     TRENDS: str = "trends"
     TREND_CHANGE_OF_OI: str = "trendschangeoi"
+    TEXT = 'text'
+    CELL_FILL_COLOR = 'fillcolor'
+    FONT_STYLE = 'fontstyle'
+    FONT_COLOR = 'fontcolor'
+    FONT_SIZE = 'fontsize'
 
+    RED = rgbToInt(230, 0, 0)
+    GREEN = rgbToInt(0, 230, 0)
+    YELLOW = rgbToInt(204, 204, 0)
+    BLACK = rgbToInt(0, 0, 0)
     # testing
     TESTING: bool = True
     Testing_index: int = -1
