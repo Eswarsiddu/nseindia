@@ -24,7 +24,7 @@ class Excel:
         print("bank nifty")
 
     def setcolumnnames(self):
-        self.nifty.range(getrange(column=Const.CALLS_LTP),3).value = Const.LTP
+        self.nifty.range(getrange(column=Const.CALLS_LTP, row=3)).value = Const.LTP
 
 
     def postinexcel(self,data):
