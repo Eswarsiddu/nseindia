@@ -14,11 +14,11 @@ except:
 trends = []
 
 if __name__ == "__main__":
-    refresh_time = 3*60
+    refresh_time = 5*60
     request = DataRequest()
     exceldata = ExcelFormatter(up=13,down=13)
     # TODO:change to while
-    for i in range(3):
+    for i in range(4):
         # TODO: change refresh time from seconds to minutes
         if i != 0:
             sleep(refresh_time)

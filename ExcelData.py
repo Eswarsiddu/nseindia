@@ -26,8 +26,10 @@ def getStrikeRange(turnoverprice, up, down,index):
 def get_cell_attributes(text, fontcolor=BLACK, cellcolor=None, fontstyle="Regular", fontsize=11):
     return {TEXT: text, FONT_SIZE: fontsize, FONT_STYLE: fontstyle, FONT_COLOR: fontcolor, CELL_FILL_COLOR: cellcolor}
 
-def modify_data(options,calls_changeoi,puts_changeoi):
-    pass
+def modify_data(data,calls_changeoi,puts_changeoi):
+    options = {}
+
+    return options
 
 def getcalloptions(data,strikeprice,turnoverprice):
     option = {}
