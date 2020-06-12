@@ -6,6 +6,22 @@ rgbToInt = lambda r,g,b: (r + (g * 256) + (b * 256 * 256))
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',
                              'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY')
+    CALLS_OI = 'A'
+    CALLS_CHANGE_IN_OI = 'B'
+    CALLS_LTP = 'F'
+    CALLS_TREND1 = 'C'
+    CALLS_TREND2 = 'D'
+    CALLS_TREND3 = 'E'
+
+    EXCEL_STRIKE_PRICE_COLUMN = 'G'
+
+    PUTS_OI = 'H'
+    PUTS_CHANGE_IN_OI = 'I'
+    PUTS_LTP = 'M'
+    PUTS_TREND1 = 'J'
+    PUTS_TREND2 = 'K'
+    PUTS_TREND3 = 'L'
+
     EXCEL_STRIKES:str= "strikeprices"
     NIFTY: int = 0
     BANK_NIFTY: int = 1
@@ -13,26 +29,39 @@ class Constants:
     CALLS: str = 'CE'
     PUTS: str = 'PE'
     INDEX: str = "index"
-    OI: str = "oi"
-    CHANGE_IN_OI: str = "changeinoi"
-    LTP: str = "ltp"
-    TIME: str = "time"
-    DATE: str = "date"
-    PRICE: str = "price"
+    OI: str = "OI"
+    CHANGE_IN_OI: str = "CHANGE IN OI"
+    LTP: str = "LTP"
+    TIME: str = "TIME"
+    DATE: str = "DATE"
+    PRICE: str = "PRICE"
     TURNOVER_PRICE: str = "turnoverprice"
     MARKET_STATUS: str = "marketstatus"
     TRENDS: str = "trends"
+    TRENDS1 = 'trends1'
+    TRENDS2 = 'trends2'
+    TRENDS3 = 'trends3'
     TREND_CHANGE_OF_OI: str = "trendschangeoi"
     TEXT = 'text'
     CELL_FILL_COLOR = 'fillcolor'
     FONT_STYLE = 'fontstyle'
     FONT_COLOR = 'fontcolor'
     FONT_SIZE = 'fontsize'
+    ERROR = 'ERROR'
 
     RED = rgbToInt(230, 0, 0)
     GREEN = rgbToInt(0, 230, 0)
     YELLOW = rgbToInt(204, 204, 0)
     BLACK = rgbToInt(0, 0, 0)
+    GREY = rgbToInt(105,105,105)
+    BLUE = rgbToInt(0,0,230)
+
+    BOLD = 'bold'
+    ITALIC = 'italic'
+    BOLD_ITALIC = 'bold italic'
+    REGULAR = 'regular'
+
+
     # testing
     TESTING: bool = True
     Testing_index: int = -1
