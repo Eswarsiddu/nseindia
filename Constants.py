@@ -6,12 +6,20 @@ rgbToInt = lambda r,g,b: (r + (g * 256) + (b * 256 * 256))
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',
                              'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY')
+
+    @staticmethod
+    def getTrends(i):
+        s = 'Trend in '
+        if i == 1:
+            return s+str(Constants.REFRESH_TIME)
     CALLS_OI = 'A'
     CALLS_CHANGE_IN_OI = 'B'
     CALLS_LTP = 'F'
     CALLS_TREND1 = 'C'
     CALLS_TREND2 = 'D'
     CALLS_TREND3 = 'E'
+
+    REFRESH_TIME = 3
 
     EXCEL_STRIKE_PRICE_COLUMN = 'G'
 
