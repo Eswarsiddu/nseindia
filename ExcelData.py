@@ -1,6 +1,8 @@
+from typing import List, Dict
+
 from Constants import Constants as Const
 
-rgbToInt = lambda rgb: (rgb[0] + (rgb[1] * 256) + (rgb[2] * 256 * 256))
+
 
 TEXT = 'text'
 CELL_FILL_COLOR = 'fillcolor'
@@ -66,7 +68,7 @@ def getputoptions(data,strikeprice,turnoverprice):
 def analyse_data(data,up,down,index):
     options = {}
     turnoverprice = data[Const.TURNOVER_PRICE]
-    Strikeprices = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down,index=index)
+    Strikeprices: List[int] = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down,index=index)
     for strikeprice in Strikeprices:
         options[strikeprice] = {Const.CALLS: {}, Const.PUTS: {}}
         options[strikeprice][Const.STRIKE_PRICE] = get_cell_attributes(text=strikeprice)

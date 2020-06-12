@@ -51,6 +51,7 @@ def get_options(options, request):
     body = requests.get(url=request,
                         headers=Const.HEADERS
                         ).json()
+    #print("body keys",body.keys(),"\n",body)
     timestamp = body['records']['timestamp'].split(" ")
 
     # checking market status
@@ -74,6 +75,10 @@ class DataRequest:
         self.Data = [{Const.INDEX: "NIFTY"}, {Const.INDEX: "BANK NIFTY"}]
 
     def request_data(self):
+        if(Const.TESTING == True):
+            Const.Testing_index += 1
+            return Const.testdata[Const.Testing_index]
+
         self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY], request=Const.URLS[Const.NIFTY])
         self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY], request=Const.URLS[Const.BANK_NIFTY])
         return self.Data
