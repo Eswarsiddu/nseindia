@@ -58,26 +58,3 @@ testdata  = [[{'index': 'NIFTY', 'marketstatus': True, 'time': '12:58:56', 'date
 # #wb.app.screen_updating = True
 # wb.save(filepath)
 # print("finised in excel")
-
-
-import time
-from DataRequest import DataRequest
-from Constants import Constants as Const
-request = DataRequest()
-c = 0
-prevtime = ""
-print("testing _len",len(Const.testdata))
-while True:
-    data = request.request_data()
-    niftydata = data[0]
-    if c==0:
-        prevtime = niftydata[Const.TIME]
-        c+=1
-    #else: time.sleep(160)
-    print("time:", niftydata[Const.TIME],c)
-    c+=1
-    for i in niftydata[9000]:
-        print(i, niftydata[9000][i][Const.CHANGE_IN_OI],niftydata[9000][i][Const.TREND_CHANGE_OF_OI],niftydata[9000][i][Const.TRENDS])
-    if(c==(len(Const.testdata)+1)):
-        print("exited")
-        break
