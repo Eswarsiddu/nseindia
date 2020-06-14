@@ -31,8 +31,9 @@ puts_trend3 = 'L'
 puts_ltp = 'M'
 
 # TimeFrame
-timeframe = 5
+timeframe = 0.1
 
+Const.Testing_index = -1
 
 if __name__ == "__main__":
     Const.initialise(calls_changeinoi=calls_changeinoi,
@@ -59,6 +60,7 @@ if __name__ == "__main__":
     prevtime = ['', '']
     preprice = [0, 0]
     sleep(2)
+    print("len = ",len(Const.testdata))
     # TODO:CHANGE to infinite loop
     for i in range(3):
         if i != 0:

@@ -42,6 +42,17 @@ class Excel:
         self.__setcolumnnames(index=Const.NIFTY)
         self.__setcolumnnames(index=Const.BANK_NIFTY)
         self.__save_file()
+        self.__conformationcell = self.__getconformationcell()
+
+    def __getconformationcell(self):
+        cells= [None,None]
+        cells[Const.NIFTY] = self.__getconfrmcell(index = Const.NIFTY)
+        cells[Const.BANK_NIFTY] = self.__getconfrmcell(index=Const.BANK_NIFTY)
+
+    def __getconfrmcell(self,index):
+        row = Const.UP + Const.DOWN + 5
+        column = 'A'
+        return self.__sheet[index].range(getrange(column=column,row=row))
 
     def __mergecells(self, index, left, right, top, bottom, value):
         t = self.__sheet[index].range(getrange(column=left, coloumn2=right,
