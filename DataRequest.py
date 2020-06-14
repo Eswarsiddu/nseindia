@@ -37,7 +37,7 @@ def get_data(body, options):
 
             except:
                 options[strike_price][j][Const.TREND_CHANGE_OF_OI] = [temp['changeinOpenInterest']]
-                options[strike_price][j][Const.TRENDS] = [-1, -1, -1, -1, -1]
+                options[strike_price][j][Const.TRENDS] = [0, 0, 0, 0, 0]
     return options
 
 
