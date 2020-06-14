@@ -76,7 +76,7 @@ class DataRequest:
         self.reset_data()
 
     def reset_data(self):
-        self.Data = [{Const.INDEX: "NIFTY"}, {Const.INDEX: "BANK NIFTY"}]
+        self.Data = [{},{}]
 
     @property
     def request_data(self):

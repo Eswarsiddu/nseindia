@@ -6,16 +6,15 @@ sortingkey = lambda x: x[1]
 
 
 def textformat(text, catogery):
-    if text == 0:
-        return '-'
-    # TODO: textformater for excel
+    # TODO: MODIFY text formatter for excel
     return str(text)
 
 
 def getStrikeRange(turnoverprice, up, down, index):
-    # TODO: this index decreasring is only for testing data, for real data remove it
-    if (index == Const.BANK_NIFTY):
-        turnoverprice -= 50
+    # TODO: REMOVE this index decreasring is only for testing data, for real data remove it
+    if Const.TESTING:
+        if (index == Const.BANK_NIFTY):
+            turnoverprice -= 50
 
     low, high = (turnoverprice - (up * Const.strikesdiff[index])), (
                 turnoverprice + ((down + 1) * Const.strikesdiff[index]))
@@ -37,13 +36,15 @@ def modify_data(options, calls_changeinoi, puts_changeinoi, turmoverprice):
         options[strike][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
         options[strike][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
         options[strike][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
-    # TODO: Modify data based on turnoverprice
+        options[strike][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
+    # TODO: MODIFY data based on turnoverprice
     return options
 
 
 def getcellcolor(turnoverprice, strikeprice, optiontype, catogery, obj=0):
     if catogery == Const.TRENDS:
-        if obj >= 30000:
+        # TODO :CHANGE the TREND CHECKING VALUE from 130 to 30000
+        if obj >= 130:
             return Const.GREEN
     if optiontype == Const.CALLS:
         if strikeprice <= turnoverprice:
@@ -83,21 +84,24 @@ def getoptions(data, strikeprice, turnoverprice, optiontype):
                                                 cellcolor=getcellcolor(turnoverprice=turnoverprice,
                                                                        strikeprice=strikeprice,
                                                                        optiontype=optiontype,
-                                                                       catogery=Const.TRENDS))
+                                                                       catogery=Const.TRENDS,
+                                                                       obj=data[Const.TRENDS][0]))
 
     option[Const.TRENDS2] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][1],
                                                                 catogery=Const.TRENDS),
                                                 cellcolor=getcellcolor(turnoverprice=turnoverprice,
                                                                        strikeprice=strikeprice,
                                                                        optiontype=optiontype,
-                                                                       catogery=Const.TRENDS))
+                                                                       catogery=Const.TRENDS,
+                                                                       obj=data[Const.TRENDS][1]))
 
     option[Const.TRENDS3] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][2],
                                                                 catogery=Const.TRENDS),
                                                 cellcolor=getcellcolor(turnoverprice=turnoverprice,
                                                                        strikeprice=strikeprice,
                                                                        optiontype=optiontype,
-                                                                       catogery=Const.TRENDS))
+                                                                       catogery=Const.TRENDS,
+                                                                       obj=data[Const.TRENDS][2]))
     return option
 
 
@@ -134,6 +138,7 @@ def analyse_data(data, up, down, index):
     options[Const.TIME] = data[Const.TIME]
     options[Const.DATE] = data[Const.DATE]
     options[Const.PRICE] = data[Const.PRICE]
+    options[Const.MARKET_STATUS] = data[Const.MARKET_STATUS]
     turnoverprice = data[Const.TURNOVER_PRICE]
     Strikeprices: List[int] = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down, index=index)
     options[Const.EXCEL_STRIKES] = Strikeprices
@@ -164,7 +169,7 @@ def analyse_data(data, up, down, index):
                           puts_changeinoi=puts_changeinoi,
                           turmoverprice=turnoverprice)
     # TODO: WORK ON ERROR HANDLING
-    options[Const.ERROR] = None
+    options[Const.ERROR] = Const.EROOR_MSG
     return options
 
 
