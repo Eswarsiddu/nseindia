@@ -1,21 +1,13 @@
+import Sampledata
 from DataRequest import DataRequest
 from ExcelData import ExcelDataFormatter as ExcelFormatter
 from Constants import Constants as Const
 from PostInExcel import Excel
 from time import sleep
+import time
 import os
 
-try:
-    import xlwings
-except:
-    os.system("python -m pip install xlwings")
-
-try:
-    import requests
-except:
-    os.system("python -m pip install requests")
-
-
+# Excel file path
 Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
 
 # Welcome text
@@ -42,9 +34,11 @@ puts_trend3 = 'L'
 puts_ltp = 'M'
 
 # TimeFrame
-timeframe = 5
+timeframe = 4
 
 Const.VISIBLE_UPDATING = False
+Const.TESTING = False
+Sampledata.testindex = -1
 
 if __name__ == "__main__":
     Const.initialise(calls_changeinoi=calls_changeinoi,
@@ -61,7 +55,8 @@ if __name__ == "__main__":
                      puts_trend3=puts_trend3,
                      up=up,
                      down=down,
-                     refreshtime=timeframe)
+                     refreshtime=timeframe,
+                     testing=Const.TESTING)
 
     refresh_time = Const.REFRESH_TIME * 60
     request = DataRequest()
@@ -78,6 +73,7 @@ if __name__ == "__main__":
         try:
             excel.postinexcel(data=Data)
         except:
+            print("Reopening excel...")
             excel.setupexcel()
             excel.postinexcel(data=Data)
         if Data[Const.NIFTY][Const.ERROR] != None:

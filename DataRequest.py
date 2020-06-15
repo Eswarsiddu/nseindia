@@ -1,5 +1,6 @@
 from Constants import Constants as Const
 import requests
+import Sampledata
 
 
 def calculate_price(n,index):
@@ -89,6 +90,10 @@ class DataRequest:
 
     @property
     def request_data(self):
+        if Const.TESTING:
+            Sampledata.testindex+=1
+            return Sampledata.testdata[Sampledata.testindex]
+
         self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY],
                                              request=Const.URLS[Const.NIFTY],
                                              index=Const.NIFTY)

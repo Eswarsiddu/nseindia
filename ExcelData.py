@@ -1,12 +1,14 @@
 from typing import List
-
 from Constants import Constants as Const
 
 sortingkey = lambda x: x[1]
 
 def convertolakhs(n):
     n = n/100000
-    return '{0:.2f}'.format(n)
+    s = '{0:.2f}'.format(n)
+    if s == '-0.00' or s == '0.00':
+        s = '0'
+    return s
 
 def textformat(text, catogery):
     if catogery == Const.OI:
@@ -17,7 +19,7 @@ def textformat(text, catogery):
         return convertolakhs(text)
     if catogery == Const.TRENDS:
         val = convertolakhs(text)
-        return '-' if val == '0.00' else val
+        return '-' if val == '0' else val
     if catogery == Const.STRIKE_PRICE:
         return str(text)
 
@@ -69,6 +71,12 @@ def getcellcolor(turnoverprice, strikeprice, optiontype, catogery, obj=0):
     return None
 
 
+def getfontcolor(text,catogery):
+    if text[0]=='-' and len(text)>1:
+        return Const.RED
+    return Const.BLACK
+
+
 def getoptions(data, strikeprice, turnoverprice, optiontype):
     option = {}
     option[Const.OI] = get_cell_attributes(
@@ -83,6 +91,8 @@ def getoptions(data, strikeprice, turnoverprice, optiontype):
         cellcolor=getcellcolor(turnoverprice=turnoverprice,
                                strikeprice=strikeprice,
                                optiontype=optiontype,
+                               catogery=Const.CHANGE_IN_OI),
+        fontcolor=getfontcolor(text=textformat(text=data[Const.CHANGE_IN_OI], catogery=Const.CHANGE_IN_OI),
                                catogery=Const.CHANGE_IN_OI)
     )
     option[Const.LTP] = get_cell_attributes(
@@ -90,6 +100,8 @@ def getoptions(data, strikeprice, turnoverprice, optiontype):
         cellcolor=getcellcolor(turnoverprice=turnoverprice,
                                strikeprice=strikeprice,
                                optiontype=optiontype,
+                               catogery=Const.LTP),
+        fontcolor=getfontcolor(text=textformat(text=data[Const.LTP], catogery=Const.LTP),
                                catogery=Const.LTP)
     )
 
@@ -99,7 +111,11 @@ def getoptions(data, strikeprice, turnoverprice, optiontype):
                                                                        strikeprice=strikeprice,
                                                                        optiontype=optiontype,
                                                                        catogery=Const.TRENDS,
-                                                                       obj=data[Const.TRENDS][0]))
+                                                                       obj=data[Const.TRENDS][0]),
+                                                fontcolor=getfontcolor(text=textformat(text=data[Const.TRENDS][0],
+                                                                                       catogery=Const.TRENDS),
+                                                                       catogery=Const.TRENDS)
+                                                )
 
     option[Const.TRENDS2] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][1],
                                                                 catogery=Const.TRENDS),
@@ -107,7 +123,10 @@ def getoptions(data, strikeprice, turnoverprice, optiontype):
                                                                        strikeprice=strikeprice,
                                                                        optiontype=optiontype,
                                                                        catogery=Const.TRENDS,
-                                                                       obj=data[Const.TRENDS][1]))
+                                                                       obj=data[Const.TRENDS][1]),
+                                                fontcolor=getfontcolor(text=textformat(text=data[Const.TRENDS][1],
+                                                                                       catogery=Const.TRENDS),
+                                                                       catogery=Const.TRENDS))
 
     option[Const.TRENDS3] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][2],
                                                                 catogery=Const.TRENDS),
@@ -115,7 +134,11 @@ def getoptions(data, strikeprice, turnoverprice, optiontype):
                                                                        strikeprice=strikeprice,
                                                                        optiontype=optiontype,
                                                                        catogery=Const.TRENDS,
-                                                                       obj=data[Const.TRENDS][2]))
+                                                                       obj=data[Const.TRENDS][2]),
+                                                fontcolor=getfontcolor(text=textformat(text=data[Const.TRENDS][2],
+                                                                                       catogery=Const.TRENDS),
+                                                                       catogery=Const.TRENDS)
+                                                )
     return option
 
 

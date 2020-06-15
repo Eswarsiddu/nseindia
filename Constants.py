@@ -1,4 +1,6 @@
 from typing import Tuple, Dict
+import os
+import platform
 
 rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 
@@ -13,7 +15,19 @@ class Constants:
 
     @staticmethod
     def initialise(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
-                   puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down, refreshtime):
+                   puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down, refreshtime,testing):
+        if platform.system() != 'Windows':
+            print("This program cannot be rune other than windows")
+            exit(0)
+        try:
+            import xlwings
+        except:
+            os.system("python -m pip install xlwings")
+
+        try:
+            import requests
+        except:
+            os.system("python -m pip install requests")
         l = [calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3]
         if len(l) != len(list(set(l))):
             print("Calls columns are crashing")
@@ -47,7 +61,7 @@ class Constants:
 
         Constants.UP = up
         Constants.DOWN = down
-        if refreshtime*60 <= 180:
+        if refreshtime*60 <= 180 and not testing:
             print("average refresh time cannot be less than 3 minutes")
             exit(0)
         Constants.REFRESH_TIME = refreshtime
@@ -78,10 +92,10 @@ class Constants:
     NIFTY_NAME = 'NIFTY'
     BANK_NIFTY_NAME = 'BANK NIFTY'
 
-    EXCEL_STRIKES: str = "strikePRICEs"
+    EXCEL_STRIKES: str = "strikeprices"
     NIFTY: int = 0
     BANK_NIFTY: int = 1
-    STRIKE_PRICE: str = 'strikePRICE'
+    STRIKE_PRICE: str = 'STRIKE PRICE'
     CALLS: str = 'CE'
     PUTS: str = 'PE'
     INDEX: str = "index"
@@ -91,7 +105,7 @@ class Constants:
     TIME: str = "TIME"
     DATE: str = "DATE"
     PRICE: str = "PRICE"
-    TURNOVER_PRICE: str = "turnoverPRICE"
+    TURNOVER_PRICE: str = "turnoverprice"
     MARKET_STATUS: str = "marketstatus"
     TRENDS: str = "trends"
     TRENDS1 = 'trends1'
@@ -103,7 +117,7 @@ class Constants:
     FONT_STYLE = 'fontstyle'
     FONT_COLOR = 'fontcolor'
     FONT_SIZE = 'fontsize'
-    ERROR = 'ERROR'
+    ERROR = 'error'
 
     #ERRORS
     NO_INTERNET = 'nointernet'
@@ -156,3 +170,4 @@ class Constants:
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
     }
 
+    TESTING = True

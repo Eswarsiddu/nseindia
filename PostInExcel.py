@@ -13,6 +13,7 @@ class Excel:
     def __init__(self, filepath):
         self.__filepath = filepath
         self.setupexcel()
+        print("Excel File Opened")
 
 
     def setupexcel(self):
