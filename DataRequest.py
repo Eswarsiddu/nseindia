@@ -2,9 +2,9 @@ from Constants import Constants as Const
 import requests
 
 
-def calculate_price(n):
+def calculate_price(n,index):
     n = int(n)
-    n -= (n % 50)
+    n -= (n % Const.strikesdiff[index])
     return n
 
 
@@ -37,7 +37,7 @@ def get_data(body, options):
 
             except:
                 options[strike_price][j][Const.TREND_CHANGE_OF_OI] = [temp['changeinOpenInterest']]
-                options[strike_price][j][Const.TRENDS] = [-1, -1, -1, -1, -1]
+                options[strike_price][j][Const.TRENDS] = [0, 0, 0, 0, 0]
     return options
 
 
@@ -47,13 +47,24 @@ def market_status(time):
     return True
 
 
-def get_options(options, request):
-    body = requests.get(url=request,
-                        headers=Const.HEADERS
-                        ).json()
-    timestamp = body['records']['timestamp'].split(" ")
+def get_options(options, request,index):
+    body = None
+    timestamp = ""
+    try:
+        body = requests.get(url=request,
+                            headers=Const.HEADERS
+                            ).json()
+    except:
+        options[Const.ERROR] = Const.NO_INTERNET
+        print("No netwok")
+        return options
+    try:
+        timestamp = body['records']['timestamp'].split(" ")
+    except:
+        print("no data retrived")
+        options[Const.ERROR] = Const.NO_DATA_FROM_SITE
+        return options
 
-    # checking market status
     if market_status(time=timestamp[1]):
         options[Const.MARKET_STATUS] = True
     else:
@@ -62,18 +73,33 @@ def get_options(options, request):
     options[Const.TIME] = timestamp[1]
     options[Const.DATE] = timestamp[0]
     price = body['records']['underlyingValue']
-    turnover_price = calculate_price(price)
+    turnover_price = calculate_price(price,index)
     options[Const.PRICE] = price
     options[Const.TURNOVER_PRICE] = turnover_price
+    options[Const.ERROR] = None
     return get_data(body=body['filtered']['data'], options=options)
 
 
 class DataRequest:
 
     def __init__(self):
-        self.Data = [{Const.INDEX: "NIFTY"}, {Const.INDEX: "BANK NIFTY"}]
+        self.Data = None
+        self.reset_data()
 
+    def reset_data(self):
+        self.Data = [{},{}]
+
+    @property
     def request_data(self):
-        self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY], request=Const.URLS[Const.NIFTY])
-        self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY], request=Const.URLS[Const.BANK_NIFTY])
+        if Const.TESTING:
+            Const.Testing_index += 1
+            return Const.testdata[Const.Testing_index]
+
+        self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY],
+                                             request=Const.URLS[Const.NIFTY],
+                                             index=Const.NIFTY)
+
+        self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY],
+                                                  request=Const.URLS[Const.BANK_NIFTY],
+                                                  index=Const.BANK_NIFTY)
         return self.Data
