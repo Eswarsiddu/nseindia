@@ -33,7 +33,10 @@ puts_ltp = 'M'
 # TimeFrame
 timeframe = 0.1
 
+Const.VISIBLE_UPDATING = False
+
 Const.Testing_index = -1
+Const.TESTING = False
 
 if __name__ == "__main__":
     Const.initialise(calls_changeinoi=calls_changeinoi,
@@ -57,26 +60,25 @@ if __name__ == "__main__":
     exceldata = ExcelFormatter(up=Const.UP, down=Const.DOWN)
     excel = Excel(filepath=Excelfilepath)
     print("started")
-    prevtime = ['', '']
-    preprice = [0, 0]
     sleep(2)
-    print("len = ",len(Const.testdata))
     # TODO:CHANGE to infinite loop
-    for i in range(3):
+    for i in range(2):
         if i != 0:
             sleep(refresh_time)
         Data = request.request_data
         print("data retrived from internet")
         Data = exceldata.update_data(Data)
-        print("Data analysed in excel form")
-        isupdated = excel.postinexcel(data=Data, prevprice=preprice, prevtime=prevtime)
+        print("Data analysed in excel form",Data[0].keys())
+        try:
+            excel.postinexcel(data=Data)
+        except:
+            print("excel closed")
+            excel.setupexcel()
+            excel.postinexcel(data=Data)
         print("updated data")
-        if isupdated:
-            prevtime[Const.NIFTY] = Data[Const.NIFTY][Const.TIME]
-            preprice[Const.NIFTY] = Data[Const.NIFTY][Const.PRICE]
-            prevtime[Const.BANK_NIFTY] = Data[Const.BANK_NIFTY][Const.TIME]
-            preprice[Const.BANK_NIFTY] = Data[Const.BANK_NIFTY][Const.PRICE]
-        else:
+        if Data[Const.NIFTY][Const.ERROR]!=None:
             request.reset_data()
 
+        elif Data[Const.NIFTY][Const.MARKET_STATUS] == False:
+            exit(0)
         print("waiting for next")

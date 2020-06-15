@@ -4,10 +4,22 @@ from Constants import Constants as Const
 
 sortingkey = lambda x: x[1]
 
+def convertolakhs(n):
+    n = n/100000
+    return '{0:.2f}'.format(n)
 
 def textformat(text, catogery):
-    # TODO: MODIFY text formatter for excel
-    return str(text)
+    if catogery == Const.OI:
+        return convertolakhs(text)
+    if catogery == Const.CHANGE_IN_OI:
+        return convertolakhs(text)
+    if catogery == Const.LTP:
+        return convertolakhs(text)
+    if catogery == Const.TRENDS:
+        val = convertolakhs(text)
+        return '-' if val == '0.00' else val
+    if catogery == Const.STRIKE_PRICE:
+        return str(text)
 
 
 def getStrikeRange(turnoverprice, up, down, index):
@@ -135,10 +147,15 @@ def insertionsort(val, strikeprice, arr):
 
 def analyse_data(data, up, down, index):
     options = {}
+    if(data[Const.ERROR]!=None):
+        options[Const.ERROR] = data[Const.ERROR]
+        return options
+
     options[Const.TIME] = data[Const.TIME]
     options[Const.DATE] = data[Const.DATE]
     options[Const.PRICE] = data[Const.PRICE]
     options[Const.MARKET_STATUS] = data[Const.MARKET_STATUS]
+    options[Const.ERROR] = data[Const.ERROR]
     turnoverprice = data[Const.TURNOVER_PRICE]
     Strikeprices: List[int] = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down, index=index)
     options[Const.EXCEL_STRIKES] = Strikeprices
@@ -146,7 +163,7 @@ def analyse_data(data, up, down, index):
 
     for strikeprice in Strikeprices:
         options[strikeprice] = {Const.CALLS: {}, Const.PUTS: {}}
-        options[strikeprice][Const.STRIKE_PRICE] = get_cell_attributes(text=strikeprice)
+        options[strikeprice][Const.STRIKE_PRICE] = get_cell_attributes(text=textformat(text=strikeprice,catogery=Const.STRIKE_PRICE))
         calls = getoptions(data=data[strikeprice][Const.CALLS],
                            strikeprice=strikeprice,
                            turnoverprice=data[Const.TURNOVER_PRICE],
@@ -168,8 +185,7 @@ def analyse_data(data, up, down, index):
                           calls_changeinoi=calls_changeinoi,
                           puts_changeinoi=puts_changeinoi,
                           turmoverprice=turnoverprice)
-    # TODO: WORK ON ERROR HANDLING
-    options[Const.ERROR] = Const.EROOR_MSG
+
     return options
 
 
@@ -179,6 +195,7 @@ class ExcelDataFormatter:
         self.down = down
 
     def update_data(self, data):
-        niftydata = analyse_data(data=data[Const.NIFTY], up=self.up, down=self.down, index=Const.NIFTY)
-        bankniftydata = analyse_data(data=data[Const.BANK_NIFTY], up=self.up, down=self.down, index=Const.BANK_NIFTY)
-        return [niftydata, bankniftydata]
+        l = [None,None]
+        l[Const.NIFTY] = analyse_data(data=data[Const.NIFTY], up=self.up, down=self.down, index=Const.NIFTY)
+        l[Const.BANK_NIFTY] = analyse_data(data=data[Const.BANK_NIFTY], up=self.up, down=self.down, index=Const.BANK_NIFTY)
+        return l

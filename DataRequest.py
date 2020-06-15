@@ -48,13 +48,23 @@ def market_status(time):
 
 
 def get_options(options, request,index):
-    body = requests.get(url=request,
-                        headers=Const.HEADERS
-                        ).json()
-    #print("body keys",body.keys(),"\n",body)
-    timestamp = body['records']['timestamp'].split(" ")
+    body = None
+    timestamp = ""
+    try:
+        body = requests.get(url=request,
+                            headers=Const.HEADERS
+                            ).json()
+    except:
+        options[Const.ERROR] = Const.NO_INTERNET
+        print("No netwok")
+        return options
+    try:
+        timestamp = body['records']['timestamp'].split(" ")
+    except:
+        print("no data retrived")
+        options[Const.ERROR] = Const.NO_DATA_FROM_SITE
+        return options
 
-    # checking market status
     if market_status(time=timestamp[1]):
         options[Const.MARKET_STATUS] = True
     else:
@@ -66,6 +76,7 @@ def get_options(options, request,index):
     turnover_price = calculate_price(price,index)
     options[Const.PRICE] = price
     options[Const.TURNOVER_PRICE] = turnover_price
+    options[Const.ERROR] = None
     return get_data(body=body['filtered']['data'], options=options)
 
 

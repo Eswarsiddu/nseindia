@@ -21,6 +21,10 @@ def getrange(column, row, coloumn2='-1', row2=-1):
 class Excel:
     def __init__(self, filepath):
         self.__filepath = filepath
+        self.setupexcel()
+
+
+    def setupexcel(self):
         try:
             self.__wb = xw.Book(self.__filepath)
         except:
@@ -43,21 +47,46 @@ class Excel:
         self.__setcolumnnames(index=Const.BANK_NIFTY)
         self.__save_file()
         self.__conformationcell = self.__getconformationcell()
+        self.__errorcell = self.__geterrorsell()
+
+
+    def __geterrorsell(self):
+        error = [None,None]
+        error[Const.NIFTY] = self.__geterrcells(index=Const.NIFTY)
+        error[Const.BANK_NIFTY] = self.__geterrcells(index=Const.BANK_NIFTY)
+        return error
+
+    def __geterrcells(self,index):
+        row = Const.DIALOGUE_BOX_ROW
+        t1 = self.__sheet[index].range(getrange(column='B',coloumn2='L',row=row,row2=row))
+        t2 = self.__sheet[index].range(getrange(column='B',row=row))
+        t2.api.Font.Size = 16
+        t2.api.Font.Color = Const.RED
+        return [t1,t2]
 
     def __getconformationcell(self):
         cells= [None,None]
         cells[Const.NIFTY] = self.__getconfrmcell(index = Const.NIFTY)
         cells[Const.BANK_NIFTY] = self.__getconfrmcell(index=Const.BANK_NIFTY)
+        return cells
 
     def __getconfrmcell(self,index):
-        row = Const.UP + Const.DOWN + 5
+        row = Const.DIALOGUE_BOX_ROW
         column = 'A'
-        return self.__sheet[index].range(getrange(column=column,row=row))
+        t = self.__sheet[index].range(getrange(column=column,row=row))
+        t.api.Font.Size = 15
+        t.api.Font.FontStyle = Const.BOLD
+        t.api.Font.Color = Const.GREEN
+        return t
 
-    def __mergecells(self, index, left, right, top, bottom, value):
+    def __setconformationcell(self,text):
+        self.__conformationcell[Const.NIFTY].value = text
+        self.__conformationcell[Const.BANK_NIFTY].value = text
+
+    def __mergecells(self, index, left, right, top, bottom, value,merging = True):
         t = self.__sheet[index].range(getrange(column=left, coloumn2=right,
                                                row=top, row2=bottom))
-        t.api.MergeCells = True
+        t.api.MergeCells = merging
         t.value = value
 
     def __setcolumnnames(self, index):
@@ -97,23 +126,15 @@ class Excel:
         # STRIKE PRICE
         self.__sheet[index].range(getrange(column=Const.EXCEL_STRIKE_PRICE_COLUMN, row=3)).value = Const.STRIKE_PRICE
 
-        # SET BORDER
+        # SET HEADING STYLE
         t = self.__sheet[index].range(getrange(column='A', coloumn2='M', row=1, row2=3))
-        # t.api.Borders = "output"
         t.api.Font.FontStyle = Const.BOLD
         t.api.Font.Size = Const.HEADING_SIZE
 
-    def __settimestamp(self, index, price, time, prevtime, date, prevprice, error):
-        if Const.INTIALIZING:
-            return True
+    def __settimestamp(self, index, price, time, date,marketstatus):
         optionname = Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
-        if error != None:
-            self.__sheet[index].range('A1').value = optionname + " : " + str(
-                prevprice[index]) + " as of " + prevtime[index] + " on " + date + " ,Error: " + error
-            return False
-        else:
-            self.__sheet[index].range('A1').value = optionname + " : " + str(price) + " as of " + time + " on " + date
-            return True
+        self.__sheet[index].range('A1').value = optionname + " : " + str(price) + " as of " + time + " on " + date + (", Market has been closed" if marketstatus == False else "")
+        return True
 
     def __setcellattributes(self,index,colunmname,attribute_data,row):
         t = self.__sheet[index].range(getrange(column=colunmname,row=row))
@@ -196,26 +217,45 @@ class Excel:
                            row=row,
                            putsdata=data[Const.PUTS])
 
-    def postinexcel(self, data, prevtime, prevprice):
-        # self.__wb.app.screen_updating = False
+    def __posterror(self,error,index):
+        s = ''
+        if error == Const.NO_INTERNET:
+            s = "Cannot connect to internet, check your connection"
+        else:
+            s = "Cannot retrieve data from site, site is not working"
+        self.__errorcell[index][0].MergeCells = True
+        self.__errorcell[index][1].value = s
+
+    def __unposterror(self,index):
+        self.__errorcell[index][0].MergeCells = True
+        self.__errorcell[index][1].value = ''
+
+
+    def postinexcel(self, data):
+        self.__setconformationcell(text="updating...")
+        self.__wb.app.screen_updating = Const.VISIBLE_UPDATING
         starttime = time()
-        isupdated = False
         for index in (Const.NIFTY, Const.BANK_NIFTY):
             optiondata = data[index]
+            if optiondata[Const.ERROR] != None:
+                self.__setconformationcell(text="")
+                self.__posterror(error=optiondata[Const.ERROR],index=index)
+                self.__wb.app.screen_updating = True
+                self.__save_file()
+                return
+            else:
+                self.__unposterror(index=index)
             if self.__settimestamp(index=index,
                                    price=optiondata[Const.PRICE],
                                    time=optiondata[Const.TIME],
-                                   prevprice=prevprice,
-                                   prevtime=prevtime,
                                    date=optiondata[Const.DATE],
-                                   error=optiondata[Const.ERROR]):
+                                   marketstatus=optiondata[Const.MARKET_STATUS]):
                 self.__postdatainexcel(index=index, Data=optiondata)
-                isupdated = True
-        # self.__wb.app.screen_updating = True
+        self.__wb.app.screen_updating = True
+        self.__setconformationcell(text="")
         self.__save_file()
         endtime = time()
         print("time taken to post data",str(endtime-starttime))
-        return isupdated
 
     def __save_file(self):
         self.__wb.save(self.__filepath)

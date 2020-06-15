@@ -99,12 +99,17 @@ class Constants:
     FONT_SIZE = 'fontsize'
     ERROR = 'ERROR'
 
+    #ERRORS
+    NO_INTERNET = 'nointernet'
+    NO_DATA_FROM_SITE ='nodatainjson'
+    CLOSED_EXCEL ='excelclosed'
+
     RED = rgbToInt(230, 0, 0)
     GREEN = rgbToInt(0, 230, 0)
     YELLOW = rgbToInt(204, 204, 0)
     BLACK = rgbToInt(0, 0, 0)
     GREY = rgbToInt(105, 105, 105)
-    BLUE = rgbToInt(0, 0, 230)
+    BLUE = rgbToInt(0, 0, 255)
     WHITE = rgbToInt(255, 255, 255)
 
     BOLD = 'bold'
@@ -115,7 +120,9 @@ class Constants:
 
     EXCEL_POSTING_AVG_TIME = 0
     REQUESTING_AVG_TIME = 0
-    CONFORMATION_BOX_ROW = 5 + UP + DOWN
+    DIALOGUE_BOX_ROW = 6 + UP + DOWN
+
+    VISIBLE_UPDATING = True
 
     DUMMYDATA = [{'TIME': '12:58:56',
                   "DATE": '12-Jun-2020',
