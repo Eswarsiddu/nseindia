@@ -47,7 +47,7 @@ class Constants:
 
         Constants.UP = up
         Constants.DOWN = down
-        if refreshtime <= 180:
+        if refreshtime*60 <= 180:
             print("average refresh time cannot be less than 3 minutes")
             exit(0)
         Constants.REFRESH_TIME = refreshtime
