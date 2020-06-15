@@ -1,80 +1,191 @@
+from typing import List, Dict
+
 from Constants import Constants as Const
 
-rgbToInt = lambda rgb: (rgb[0] + (rgb[1] * 256) + (rgb[2] * 256 * 256))
+sortingkey = lambda x: x[1]
 
-TEXT = 'text'
-CELL_FILL_COLOR = 'fillcolor'
-FONT_STYLE = 'fontstyle'
-FONT_COLOR = 'fontcolor'
-FONT_SIZE = 'fontsize'
+def convertolakhs(n):
+    n = n/100000
+    return '{0:.2f}'.format(n)
 
-RED = rgbToInt((230, 0, 0))
-GREEN = rgbToInt((0, 230, 0))
-YELLOW = rgbToInt((204, 204, 0))
-BLACK = rgbToInt((0, 0, 0))
+def textformat(text, catogery):
+    if catogery == Const.OI:
+        return convertolakhs(text)
+    if catogery == Const.CHANGE_IN_OI:
+        return convertolakhs(text)
+    if catogery == Const.LTP:
+        return convertolakhs(text)
+    if catogery == Const.TRENDS:
+        val = convertolakhs(text)
+        return '-' if val == '0.00' else val
+    if catogery == Const.STRIKE_PRICE:
+        return str(text)
 
 
-strikesdiff = [50,100]
-def getStrikeRange(turnoverprice, up, down,index):
-    low, high = (turnoverprice - (up * strikesdiff[index])), (turnoverprice + ((down + 1) * strikesdiff[index]))
-    l = []
-    for i in range(low, high, strikesdiff[index]):
+def getStrikeRange(turnoverprice, up, down, index):
+    # TODO: REMOVE this index decreasring is only for testing data, for real data remove it
+    if Const.TESTING:
+        if (index == Const.BANK_NIFTY):
+            turnoverprice -= 50
+
+    low, high = (turnoverprice - (up * Const.strikesdiff[index])), (
+                turnoverprice + ((down + 1) * Const.strikesdiff[index]))
+    l: List[int] = []
+    for i in range(low, high, Const.strikesdiff[index]):
         l.append(i)
     return l
 
 
-def get_cell_attributes(text, fontcolor=BLACK, cellcolor=None, fontstyle="Regular", fontsize=11):
-    return {TEXT: text, FONT_SIZE: fontsize, FONT_STYLE: fontstyle, FONT_COLOR: fontcolor, CELL_FILL_COLOR: cellcolor}
+def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=Const.REGULAR, fontsize=11):
+    return {Const.TEXT: text, Const.FONT_SIZE: fontsize, Const.FONT_STYLE: fontstyle, Const.FONT_COLOR: fontcolor,
+            Const.CELL_FILL_COLOR: cellcolor}
 
-def modify_data(data,calls_changeoi,puts_changeoi):
-    options = {}
 
+def modify_data(options, calls_changeinoi, puts_changeinoi, turmoverprice):
+    strikes = [i[1] for i in calls_changeinoi] + [i[1] for i in puts_changeinoi]
+    strikes = sorted(set(strikes))
+    for strike in strikes:
+        options[strike][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
+        options[strike][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
+        options[strike][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
+        options[strike][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
+    # TODO: MODIFY data based on turnoverprice
     return options
 
-def getcalloptions(data,strikeprice,turnoverprice):
+
+def getcellcolor(turnoverprice, strikeprice, optiontype, catogery, obj=0):
+    if catogery == Const.TRENDS:
+        # TODO :CHANGE the TREND CHECKING VALUE from 130 to 30000
+        if obj >= 130:
+            return Const.GREEN
+    if optiontype == Const.CALLS:
+        if strikeprice <= turnoverprice:
+            return Const.YELLOW
+    else:
+        if strikeprice > turnoverprice:
+            return Const.YELLOW
+    return None
+
+
+def getoptions(data, strikeprice, turnoverprice, optiontype):
     option = {}
     option[Const.OI] = get_cell_attributes(
-        text=data[Const.OI],
-        cellcolor=YELLOW if strikeprice <= turnoverprice else None
+        text=textformat(text=data[Const.OI], catogery=Const.OI),
+        cellcolor=getcellcolor(turnoverprice=turnoverprice,
+                               strikeprice=strikeprice,
+                               optiontype=optiontype,
+                               catogery=Const.OI)
     )
     option[Const.CHANGE_IN_OI] = get_cell_attributes(
-        text=data[Const.CHANGE_IN_OI],
-        cellcolor=YELLOW if strikeprice <= turnoverprice else None
+        text=textformat(text=data[Const.CHANGE_IN_OI], catogery=Const.CHANGE_IN_OI),
+        cellcolor=getcellcolor(turnoverprice=turnoverprice,
+                               strikeprice=strikeprice,
+                               optiontype=optiontype,
+                               catogery=Const.CHANGE_IN_OI)
     )
     option[Const.LTP] = get_cell_attributes(
-        text=data[Const.LTP],
-        cellcolor=YELLOW if strikeprice <= turnoverprice else None
+        text=textformat(text=data[Const.LTP], catogery=Const.LTP),
+        cellcolor=getcellcolor(turnoverprice=turnoverprice,
+                               strikeprice=strikeprice,
+                               optiontype=optiontype,
+                               catogery=Const.LTP)
     )
+
+    option[Const.TRENDS1] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][0],
+                                                                catogery=Const.TRENDS),
+                                                cellcolor=getcellcolor(turnoverprice=turnoverprice,
+                                                                       strikeprice=strikeprice,
+                                                                       optiontype=optiontype,
+                                                                       catogery=Const.TRENDS,
+                                                                       obj=data[Const.TRENDS][0]))
+
+    option[Const.TRENDS2] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][1],
+                                                                catogery=Const.TRENDS),
+                                                cellcolor=getcellcolor(turnoverprice=turnoverprice,
+                                                                       strikeprice=strikeprice,
+                                                                       optiontype=optiontype,
+                                                                       catogery=Const.TRENDS,
+                                                                       obj=data[Const.TRENDS][1]))
+
+    option[Const.TRENDS3] = get_cell_attributes(text=textformat(text=data[Const.TRENDS][2],
+                                                                catogery=Const.TRENDS),
+                                                cellcolor=getcellcolor(turnoverprice=turnoverprice,
+                                                                       strikeprice=strikeprice,
+                                                                       optiontype=optiontype,
+                                                                       catogery=Const.TRENDS,
+                                                                       obj=data[Const.TRENDS][2]))
     return option
 
-def getputoptions(data,strikeprice,turnoverprice):
-    option = {}
-    option[Const.OI] = get_cell_attributes(
-        text=data[Const.OI],
-        cellcolor=YELLOW if strikeprice > turnoverprice else None
-    )
-    option[Const.CHANGE_IN_OI] = get_cell_attributes(
-        text=data[Const.CHANGE_IN_OI],
-        cellcolor=YELLOW if strikeprice > turnoverprice else None
-    )
-    option[Const.LTP]=get_cell_attributes(
-        text=data[Const.LTP],
-        cellcolor=YELLOW if strikeprice > turnoverprice else None
-    )
-    return option
 
-def analyse_data(data,up,down,index):
+def insertionsort(val, strikeprice, arr):
+    temp = [val, strikeprice]
+    if len(arr) == 0:
+        arr.append(temp)
+    elif len(arr) == 1:
+        if arr[0][0] <= val:
+            arr.append(temp)
+        else:
+            arr.insert(0, temp)
+    elif len(arr) == 2:
+        if arr[1][0] <= val:
+            arr.append(temp)
+        elif arr[0][0] <= val:
+            arr.insert(1, temp)
+        else:
+            arr.insert(0, temp)
+    else:
+        if arr[2][0] <= val:
+            arr.append(temp)
+        elif arr[1][0] <= val:
+            arr.insert(2, temp)
+        elif arr[0][0] <= val:
+            arr.insert(1, temp)
+    if (len(arr) >= 4):
+        arr = arr[1:]
+    return arr
+
+
+def analyse_data(data, up, down, index):
     options = {}
+    if(data[Const.ERROR]!=None):
+        options[Const.ERROR] = data[Const.ERROR]
+        return options
+
+    options[Const.TIME] = data[Const.TIME]
+    options[Const.DATE] = data[Const.DATE]
+    options[Const.PRICE] = data[Const.PRICE]
+    options[Const.MARKET_STATUS] = data[Const.MARKET_STATUS]
+    options[Const.ERROR] = data[Const.ERROR]
     turnoverprice = data[Const.TURNOVER_PRICE]
-    Strikeprices = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down,index=index)
+    Strikeprices: List[int] = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down, index=index)
+    options[Const.EXCEL_STRIKES] = Strikeprices
+    calls_changeinoi, puts_changeinoi = [], []
+
     for strikeprice in Strikeprices:
         options[strikeprice] = {Const.CALLS: {}, Const.PUTS: {}}
-        options[strikeprice][Const.STRIKE_PRICE] = get_cell_attributes(text=strikeprice)
-        calls = getcalloptions(data=data[strikeprice][Const.CALLS],strikeprice=strikeprice,turnoverprice=data[Const.TURNOVER_PRICE])
-        puts = getputoptions(data=data[strikeprice][Const.PUTS],strikeprice=strikeprice,turnoverprice=data[Const.TURNOVER_PRICE])
+        options[strikeprice][Const.STRIKE_PRICE] = get_cell_attributes(text=textformat(text=strikeprice,catogery=Const.STRIKE_PRICE))
+        calls = getoptions(data=data[strikeprice][Const.CALLS],
+                           strikeprice=strikeprice,
+                           turnoverprice=data[Const.TURNOVER_PRICE],
+                           optiontype=Const.CALLS)
+
+        puts = getoptions(data=data[strikeprice][Const.PUTS],
+                          strikeprice=strikeprice,
+                          turnoverprice=data[Const.TURNOVER_PRICE],
+                          optiontype=Const.PUTS)
+
+        calls_changeinoi = insertionsort(val=data[strikeprice][Const.CALLS][Const.CHANGE_IN_OI],
+                                         strikeprice=strikeprice, arr=calls_changeinoi)
+        puts_changeinoi = insertionsort(val=data[strikeprice][Const.PUTS][Const.CHANGE_IN_OI], strikeprice=strikeprice,
+                                        arr=puts_changeinoi)
+
         options[strikeprice][Const.CALLS] = calls
         options[strikeprice][Const.PUTS] = puts
-        #print(strikeprice, options)
+    options = modify_data(options=options,
+                          calls_changeinoi=calls_changeinoi,
+                          puts_changeinoi=puts_changeinoi,
+                          turmoverprice=turnoverprice)
+
     return options
 
 
@@ -84,6 +195,7 @@ class ExcelDataFormatter:
         self.down = down
 
     def update_data(self, data):
-        niftydata = analyse_data(data=data[Const.NIFTY],up=self.up,down=self.down,index=Const.NIFTY)
-        bankniftydata = analyse_data(data=data[Const.BANK_NIFTY],up=self.up,down=self.down,index=Const.BANK_NIFTY)
-        return [niftydata, bankniftydata]
+        l = [None,None]
+        l[Const.NIFTY] = analyse_data(data=data[Const.NIFTY], up=self.up, down=self.down, index=Const.NIFTY)
+        l[Const.BANK_NIFTY] = analyse_data(data=data[Const.BANK_NIFTY], up=self.up, down=self.down, index=Const.BANK_NIFTY)
+        return l
