@@ -56,12 +56,10 @@ def get_options(options, request,index):
                             ).json()
     except:
         options[Const.ERROR] = Const.NO_INTERNET
-        print("No netwok")
         return options
     try:
         timestamp = body['records']['timestamp'].split(" ")
     except:
-        print("no data retrived")
         options[Const.ERROR] = Const.NO_DATA_FROM_SITE
         return options
 
@@ -91,10 +89,6 @@ class DataRequest:
 
     @property
     def request_data(self):
-        if Const.TESTING:
-            Const.Testing_index += 1
-            return Const.testdata[Const.Testing_index]
-
         self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY],
                                              request=Const.URLS[Const.NIFTY],
                                              index=Const.NIFTY)

@@ -1,15 +1,6 @@
 import os
-from time import time
-
 from Constants import Constants as Const
-
-while True:
-    try:
-        import xlwings as xw
-
-        break
-    except:
-        os.system("pip install xlwings")
+import xlwings as xw
 
 
 def getrange(column, row, coloumn2='-1', row2=-1):
@@ -234,7 +225,6 @@ class Excel:
     def postinexcel(self, data):
         self.__setconformationcell(text="updating...")
         self.__wb.app.screen_updating = Const.VISIBLE_UPDATING
-        starttime = time()
         for index in (Const.NIFTY, Const.BANK_NIFTY):
             optiondata = data[index]
             if optiondata[Const.ERROR] != None:
@@ -254,8 +244,6 @@ class Excel:
         self.__wb.app.screen_updating = True
         self.__setconformationcell(text="")
         self.__save_file()
-        endtime = time()
-        print("time taken to post data",str(endtime-starttime))
 
     def __save_file(self):
         self.__wb.save(self.__filepath)

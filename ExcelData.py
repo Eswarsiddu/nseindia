@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 
 from Constants import Constants as Const
 
@@ -23,11 +23,6 @@ def textformat(text, catogery):
 
 
 def getStrikeRange(turnoverprice, up, down, index):
-    # TODO: REMOVE this index decreasring is only for testing data, for real data remove it
-    if Const.TESTING:
-        if (index == Const.BANK_NIFTY):
-            turnoverprice -= 50
-
     low, high = (turnoverprice - (up * Const.strikesdiff[index])), (
                 turnoverprice + ((down + 1) * Const.strikesdiff[index]))
     l: List[int] = []
@@ -41,22 +36,29 @@ def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=C
             Const.CELL_FILL_COLOR: cellcolor}
 
 
-def modify_data(options, calls_changeinoi, puts_changeinoi, turmoverprice):
+def modify_data(options, calls_changeinoi, puts_changeinoi, turnoverprice):
     strikes = [i[1] for i in calls_changeinoi] + [i[1] for i in puts_changeinoi]
     strikes = sorted(set(strikes))
-    for strike in strikes:
-        options[strike][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
-        options[strike][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
-        options[strike][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
-        options[strike][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
-    # TODO: MODIFY data based on turnoverprice
+    upstrikes = [i for i in strikes if i<=turnoverprice]
+    downstrikes = [i for i in strikes if i>turnoverprice]
+
+    for i in range(upstrikes):
+        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE(len(strikes)-len(upstrikes)+i)
+        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
+        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
+        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
+
+    for i in range(downstrikes):
+        options[downstrikes[i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE(len(strikes)-len(downstrikes)+i)
+        options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
+        options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
+        options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
     return options
 
 
 def getcellcolor(turnoverprice, strikeprice, optiontype, catogery, obj=0):
     if catogery == Const.TRENDS:
-        # TODO :CHANGE the TREND CHECKING VALUE from 130 to 30000
-        if obj >= 130:
+        if obj >= 30000:
             return Const.GREEN
     if optiontype == Const.CALLS:
         if strikeprice <= turnoverprice:
@@ -184,7 +186,7 @@ def analyse_data(data, up, down, index):
     options = modify_data(options=options,
                           calls_changeinoi=calls_changeinoi,
                           puts_changeinoi=puts_changeinoi,
-                          turmoverprice=turnoverprice)
+                          turnoverprice=turnoverprice)
 
     return options
 

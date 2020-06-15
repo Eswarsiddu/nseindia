@@ -5,7 +5,18 @@ from PostInExcel import Excel
 from time import sleep
 import os
 
-Excelfilepath = os.getcwd() + "\\nsetest.xlsx"
+try:
+    import xlwings
+except:
+    os.system("python -m pip install xlwings")
+
+try:
+    import requests
+except:
+    os.system("python -m pip install requests")
+
+
+Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
 
 # Welcome text
 Const.WELCOME_TEXT = "PLEASE WAIT FOR FEW SECONDS, RELOADING AWM 😁😁"
@@ -35,9 +46,6 @@ timeframe = 0.1
 
 Const.VISIBLE_UPDATING = False
 
-Const.Testing_index = -1
-Const.TESTING = False
-
 if __name__ == "__main__":
     Const.initialise(calls_changeinoi=calls_changeinoi,
                      calls_ltp=calls_ltp,
@@ -59,26 +67,21 @@ if __name__ == "__main__":
     request = DataRequest()
     exceldata = ExcelFormatter(up=Const.UP, down=Const.DOWN)
     excel = Excel(filepath=Excelfilepath)
-    print("started")
+    starting = True
     sleep(2)
-    # TODO:CHANGE to infinite loop
-    for i in range(2):
-        if i != 0:
+    while True:
+        if starting == False:
             sleep(refresh_time)
+        starting = False
         Data = request.request_data
-        print("data retrived from internet")
         Data = exceldata.update_data(Data)
-        print("Data analysed in excel form",Data[0].keys())
         try:
             excel.postinexcel(data=Data)
         except:
-            print("excel closed")
             excel.setupexcel()
             excel.postinexcel(data=Data)
-        print("updated data")
-        if Data[Const.NIFTY][Const.ERROR]!=None:
+        if Data[Const.NIFTY][Const.ERROR] != None:
             request.reset_data()
 
         elif Data[Const.NIFTY][Const.MARKET_STATUS] == False:
             exit(0)
-        print("waiting for next")
