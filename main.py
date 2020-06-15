@@ -42,7 +42,7 @@ puts_trend3 = 'L'
 puts_ltp = 'M'
 
 # TimeFrame
-timeframe = 0.1
+timeframe = 5
 
 Const.VISIBLE_UPDATING = False
 
