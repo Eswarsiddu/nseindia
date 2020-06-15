@@ -42,15 +42,15 @@ def modify_data(options, calls_changeinoi, puts_changeinoi, turnoverprice):
     upstrikes = [i for i in strikes if i<=turnoverprice]
     downstrikes = [i for i in strikes if i>turnoverprice]
 
-    for i in range(upstrikes):
-        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE(len(strikes)-len(upstrikes)+i)
-        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
+    for i in range(len(upstrikes)):
+        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
+        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE((len(strikes)-len(upstrikes)+i))
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
 
-    for i in range(downstrikes):
-        options[downstrikes[i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE(len(strikes)-len(downstrikes)+i)
-        options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = 14
+    for i in range(len(downstrikes)):
+        options[downstrikes[i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
+        options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE((len(strikes)-len(upstrikes)+i))
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
     return options

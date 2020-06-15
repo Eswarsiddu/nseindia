@@ -115,21 +115,22 @@ class Constants:
     YELLOW = rgbToInt(204, 204, 0)
     BLACK = rgbToInt(0, 0, 0)
     GREY = rgbToInt(105, 105, 105)
-    # BLUE = rgbToInt(0, 0, 255)
+    BLUE = rgbToInt(0, 0, 255)
     WHITE = rgbToInt(255, 255, 255)
-    def BLUE(self,i):
+    @staticmethod
+    def FONTSIZE(i):
         if i==0:
-            return rgbToInt(0,0,105)
+            return 11
         if i==1:
-            return rgbToInt(0,0,135)
+            return 12
         if i==2:
-            return rgbToInt(0, 0, 165)
+            return 13
         if i==3:
-            return rgbToInt(0, 0, 195)
+            return 14
         if i==4:
-            return rgbToInt(0,0,225)
+            return 15
         if i==5:
-            return rgbToInt(0,0,255)
+            return 16
 
     BOLD = 'bold'
     ITALIC = 'italic'
