@@ -1,6 +1,9 @@
 from typing import Tuple, Dict
-import os
-import platform
+import os, platform
+
+if platform.system() != 'Windows':
+    print("This program cannot be rune other than windows")
+    exit(0)
 
 rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 
@@ -8,6 +11,15 @@ rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',
                              'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY')
+    try:
+        import xlwings
+    except:
+        os.system("python -m pip install xlwings")
+
+    try:
+        import requests
+    except:
+        os.system("python -m pip install requests")
 
     @staticmethod
     def getTrends(i):
@@ -16,18 +28,6 @@ class Constants:
     @staticmethod
     def initialise(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
                    puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down, refreshtime,testing):
-        if platform.system() != 'Windows':
-            print("This program cannot be rune other than windows")
-            exit(0)
-        try:
-            import xlwings
-        except:
-            os.system("python -m pip install xlwings")
-
-        try:
-            import requests
-        except:
-            os.system("python -m pip install requests")
         l = [calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3]
         if len(l) != len(list(set(l))):
             print("Calls columns are crashing")

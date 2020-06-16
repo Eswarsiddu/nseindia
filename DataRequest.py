@@ -1,7 +1,6 @@
 from Constants import Constants as Const
+import Sampledata, os
 import requests
-import Sampledata
-
 
 def calculate_price(n,index):
     n = int(n)

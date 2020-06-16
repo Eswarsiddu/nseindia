@@ -1,7 +1,6 @@
-import os
+import platform,os
 from Constants import Constants as Const
 import xlwings as xw
-
 
 def getrange(column, row, coloumn2='-1', row2=-1):
     if coloumn2 == '-1' and row2 == -1:

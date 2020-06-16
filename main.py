@@ -1,7 +1,7 @@
 import Sampledata
+from Constants import Constants as Const
 from DataRequest import DataRequest
 from ExcelData import ExcelDataFormatter as ExcelFormatter
-from Constants import Constants as Const
 from PostInExcel import Excel
 from time import sleep
 import time
