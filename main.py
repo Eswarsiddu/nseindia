@@ -4,7 +4,6 @@ from DataRequest import DataRequest
 from ExcelData import ExcelDataFormatter as ExcelFormatter
 from PostInExcel import Excel
 from time import sleep
-from test import Excel as exc
 
 # Excel file path
 Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
@@ -60,7 +59,7 @@ if __name__ == "__main__":
     refresh_time = Const.REFRESH_TIME * 60
     request = DataRequest()
     exceldata = ExcelFormatter(up=Const.UP, down=Const.DOWN)
-    excel = exc(filepath=Excelfilepath)
+    excel = Excel(filepath=Excelfilepath)
     starting = True
     sleep(2)
     while True:
