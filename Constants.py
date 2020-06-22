@@ -133,18 +133,7 @@ class Constants:
     WHITE = rgbToInt(255, 255, 255)
     @staticmethod
     def FONTSIZE(i):
-        if i==0:
-            return 11
-        if i==1:
-            return 12
-        if i==2:
-            return 13
-        if i==3:
-            return 14
-        if i==4:
-            return 15
-        if i==5:
-            return 16
+        return 11+i
 
     BOLD = 'bold'
     ITALIC = 'italic'

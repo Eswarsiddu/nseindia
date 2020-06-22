@@ -17,28 +17,31 @@ class Excel:
 
     def setupexcel(self):
         try:
-            self.__wb = xw.Book(self.__filepath)
-        except:
-            self.__wb = xw.Book()
-            self.__save_file()
+            try:
+                self.__wb = xw.Book(self.__filepath)
+            except:
+                self.__wb = xw.Book()
+                self.__save_file()
 
-        self.__sheet = [None, None]
-        try:
-            self.__sheet[Const.BANK_NIFTY] = self.__wb.sheets[Const.BANK_NIFTY_NAME]
+            self.__sheet = [None, None]
+            try:
+                self.__sheet[Const.BANK_NIFTY] = self.__wb.sheets[Const.BANK_NIFTY_NAME]
+            except:
+                self.__wb.sheets.add(name=Const.BANK_NIFTY_NAME)
+                self.__sheet[Const.BANK_NIFTY] = self.__wb.sheets[Const.BANK_NIFTY_NAME]
+            try:
+                self.__sheet[Const.NIFTY] = self.__wb.sheets[Const.NIFTY_NAME]
+            except:
+                self.__wb.sheets.add(name=Const.NIFTY_NAME, before=Const.BANK_NIFTY_NAME)
+                self.__sheet[Const.NIFTY] = self.__wb.sheets[Const.NIFTY_NAME]
+            self.__save_file()
+            self.__setcolumnnames(index=Const.NIFTY)
+            self.__setcolumnnames(index=Const.BANK_NIFTY)
+            self.__save_file()
+            self.__conformationcell = self.__getconformationcell()
+            self.__errorcell = self.__geterrorsell()
         except:
-            self.__wb.sheets.add(name=Const.BANK_NIFTY_NAME)
-            self.__sheet[Const.BANK_NIFTY] = self.__wb.sheets[Const.BANK_NIFTY_NAME]
-        try:
-            self.__sheet[Const.NIFTY] = self.__wb.sheets[Const.NIFTY_NAME]
-        except:
-            self.__wb.sheets.add(name=Const.NIFTY_NAME, before=Const.BANK_NIFTY_NAME)
-            self.__sheet[Const.NIFTY] = self.__wb.sheets[Const.NIFTY_NAME]
-        self.__save_file()
-        self.__setcolumnnames(index=Const.NIFTY)
-        self.__setcolumnnames(index=Const.BANK_NIFTY)
-        self.__save_file()
-        self.__conformationcell = self.__getconformationcell()
-        self.__errorcell = self.__geterrorsell()
+            self.setupexcel()
 
 
     def __geterrorsell(self):

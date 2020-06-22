@@ -1,9 +1,10 @@
 import Sampledata,os
+from Constants import Constants as Const
 from DataRequest import DataRequest
 from ExcelData import ExcelDataFormatter as ExcelFormatter
-from Constants import Constants as Const
 from PostInExcel import Excel
 from time import sleep
+from test import Excel as exc
 
 # Excel file path
 Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
@@ -32,10 +33,10 @@ puts_trend3 = 'L'
 puts_ltp = 'M'
 
 # TimeFrame
-timeframe = 4
+timeframe = 0.1
 
 Const.VISIBLE_UPDATING = False
-Const.TESTING = False
+Const.TESTING = True
 Sampledata.testindex = -1
 
 if __name__ == "__main__":
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     refresh_time = Const.REFRESH_TIME * 60
     request = DataRequest()
     exceldata = ExcelFormatter(up=Const.UP, down=Const.DOWN)
-    excel = Excel(filepath=Excelfilepath)
+    excel = exc(filepath=Excelfilepath)
     starting = True
     sleep(2)
     while True:
@@ -68,12 +69,13 @@ if __name__ == "__main__":
         starting = False
         Data = request.request_data
         Data = exceldata.update_data(Data)
-        try:
-            excel.postinexcel(data=Data)
-        except:
-            print("Reopening excel...")
-            excel.setupexcel()
-            excel.postinexcel(data=Data)
+        excel.postinexcel(data=Data)
+        # try:
+        #     excel.postinexcel(data=Data)
+        # except:
+        #     print("Reopening excel...")
+        #     excel.setupexcel()
+        #     excel.postinexcel(data=Data)
         if Data[Const.NIFTY][Const.ERROR] != None:
             request.reset_data()
 
