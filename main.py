@@ -5,6 +5,11 @@ from ExcelData import ExcelDataFormatter as ExcelFormatter
 from PostInExcel import Excel
 from time import sleep
 
+Const.TESTING = False
+
+# TimeFrame
+timeframe = 5
+
 # Excel file path
 Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
 
@@ -31,11 +36,9 @@ puts_trend2 = 'K'
 puts_trend3 = 'L'
 puts_ltp = 'M'
 
-# TimeFrame
-timeframe = 0.1
+
 
 Const.VISIBLE_UPDATING = False
-Const.TESTING = True
 Sampledata.testindex = -1
 
 if __name__ == "__main__":
@@ -68,13 +71,12 @@ if __name__ == "__main__":
         starting = False
         Data = request.request_data
         Data = exceldata.update_data(Data)
-        excel.postinexcel(data=Data)
-        # try:
-        #     excel.postinexcel(data=Data)
-        # except:
-        #     print("Reopening excel...")
-        #     excel.setupexcel()
-        #     excel.postinexcel(data=Data)
+        try:
+            excel.postinexcel(data=Data)
+        except:
+            print("Reopening excel...")
+            excel.setupexcel()
+            excel.postinexcel(data=Data)
         if Data[Const.NIFTY][Const.ERROR] != None:
             request.reset_data()
 

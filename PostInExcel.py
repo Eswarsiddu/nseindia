@@ -1,8 +1,5 @@
-import platform,os
 from Constants import Constants as Const
 import win32com.client
-xw = win32com.client.Dispatch('Excel.Application')
-xw.Visible = True
 
 
 def getrange(column, row, coloumn2='-1', row2=-1):
@@ -20,34 +17,25 @@ class Excel:
 
     def setupexcel(self):
         try:
+            xw = win32com.client.Dispatch('Excel.Application')
+            xw.Visible = True
             try:
-                print("tying open")
                 self.__wb = xw.Workbooks.Open(self.__filepath)
-                print("opened")
             except:
-                # TODO: create if doesnot exists
-                print("creating")
                 self.__wb = xw.Workbooks.Add()
                 self.__wb.SaveAs(self.__filepath)
-                print("created")
-                print("opened aftewr creating")
-                #self.__wb = xw.Workbooks.Open(self.__filepath)
 
             self.__sheet = [None, None]
             try:
                 self.__sheet[Const.BANK_NIFTY] = self.__wb.Worksheets(Const.BANK_NIFTY_NAME)
             except:
-                # TODO: Create bank nifty sheet if not exists
-                print("does not exixts")
                 self.__wb.Worksheets.Add()
                 self.__sheet[Const.BANK_NIFTY] = self.__wb.Worksheets(1)
                 self.__sheet[Const.BANK_NIFTY].Name = Const.BANK_NIFTY_NAME
-                print("created")
 
             try:
                 self.__sheet[Const.NIFTY] = self.__wb.Worksheets(Const.NIFTY_NAME)
             except:
-                # TODO: Create nifty sheet if not exists
                 self.__wb.Worksheets.Add(Before=self.__wb.Worksheets(1))
                 self.__sheet[Const.NIFTY] = self.__wb.Worksheets(1)
                 self.__sheet[Const.NIFTY].Name = Const.NIFTY_NAME
@@ -59,7 +47,7 @@ class Excel:
             self.__conformationcell = self.__getconformationcell()
             self.__errorcell = self.__geterrorsell()
         except Exception as e:
-            print("error",str(e))
+            self.setupexcel()
 
 
 
@@ -247,14 +235,11 @@ class Excel:
 
     def postinexcel(self, data):
         self.__setconformationcell(text="updating...")
-        #self.__wb.screen_updating = Const.VISIBLE_UPDATING
-        #print("updating screen",xw.screen_updating)
         for index in (Const.NIFTY, Const.BANK_NIFTY):
             optiondata = data[index]
             if optiondata[Const.ERROR] != None:
                 self.__setconformationcell(text="")
                 self.__posterror(error=optiondata[Const.ERROR],index=index)
-                #xw.screen_updating = True
                 self.__save_file()
                 return
             else:
@@ -265,7 +250,6 @@ class Excel:
                                    date=optiondata[Const.DATE],
                                    marketstatus=optiondata[Const.MARKET_STATUS]):
                 self.__postdatainexcel(index=index, Data=optiondata)
-        #xw.screen_updating = True
         self.__setconformationcell(text="")
         self.__save_file()
 

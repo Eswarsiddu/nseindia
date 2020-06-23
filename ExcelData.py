@@ -43,18 +43,14 @@ def modify_data(options, calls_changeinoi, puts_changeinoi, turnoverprice):
     strikes = sorted(set(strikes))
     upstrikes = [i for i in strikes if i<=turnoverprice]
     downstrikes = [i for i in strikes if i>turnoverprice]
-    print("upstrikes",upstrikes)
 
     for i in range(len(upstrikes)):
-        print(upstrikes[len(upstrikes)-1-i],(i+1))
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE(i+1)
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
 
-    print("downstrikes", downstrikes)
     for i in range(len(downstrikes)):
-        print(downstrikes[i], (i+1))
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE(i+1)
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
