@@ -12,7 +12,7 @@ Const.TESTING = False
 timeframe = 5
 
 # Excel file path
-Excelfilepath = os.getcwd() + "/optionchaindata.xlsx"
+Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
 
 # Welcome text
 Const.WELCOME_TEXT = "PLEASE WAIT FOR FEW SECONDS, RELOADING AWM 😁😁"

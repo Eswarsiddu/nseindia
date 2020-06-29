@@ -5,8 +5,10 @@ import os, platform
 #     print("This program cannot be rune other than windows")
 #     exit(0)
 
-rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
+#rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 
+def rgbToInt(r,g,b):
+    return '%02x%02x%02x' % (r,g,b)
 
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',

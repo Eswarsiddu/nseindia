@@ -1,6 +1,11 @@
 from Constants import Constants as Const
+import os
+try:
+    import openpyxl
+except:
+    os.system("python -m pip install openpyxl")
 from openpyxl import load_workbook, Workbook
-from openpyxl.styles import Font
+from openpyxl.styles import Font,Fill,PatternFill
 
 
 def getrange(column, row, column2='-1', row2=-1):
@@ -36,7 +41,6 @@ class Excel:
                 self.__sheet[Const.BANK_NIFTY] = self.__wb[Const.BANK_NIFTY_NAME]
                 print("got nifty")
             except:
-                # TODO: create nifty sheet
                 print("creating nifty")
                 self.__sheet[Const.BANK_NIFTY] = self.__wb.create_sheet(title=Const.BANK_NIFTY_NAME, index=2)
 
@@ -44,7 +48,6 @@ class Excel:
                 self.__sheet[Const.NIFTY] = self.__wb[Const.NIFTY_NAME]
                 print("got bank nifty")
             except:
-                # TODO: create bank nifty sheet
                 print("creating bank nifty")
                 self.__sheet[Const.NIFTY] = self.__wb.create_sheet(title=Const.NIFTY_NAME, index=1)
 
@@ -83,7 +86,7 @@ class Excel:
     def __geterrcells(self, index):
         row = Const.DIALOGUE_BOX_ROW
         t1 = getrange(column='B', column2='L', row=row, row2=row)
-        t2 = self.__sheet[index].cell(range=getrange(column='B', row=row))
+        t2 = self.__sheet[index][getrange(column='B', row=row)]
         t2.font = Font(size=16,color=Const.RED)
         return [t1, t2]
 
@@ -104,63 +107,69 @@ class Excel:
         self.__conformationCell[Const.NIFTY].value = text
         self.__conformationCell[Const.BANK_NIFTY].value = text
 
-    def __mergecells(self, index, left, right, top, bottom, value, merging=True):
-        # t = self.__sheet[index].Range(getrange(column=left, coloumn2=right,
-        #                                        row=top, row2=bottom))
-        if merging:
-            self.__sheet[index].merge_cells(getrange(column=left, column2=right, row=top, row2=bottom))
-        else:
-            self.__sheet[index].unmerge_cells(getrange(column=left, column2=right, row=top, row2=bottom))
-        self.__sheet[index].cell(row=top, column=left).value = value
+    def __mergecells(self, index, left, right, top, bottom, value):
+        self.__sheet[index].merge_cells(getrange(column=left, column2=right, row=top, row2=bottom))
+        self.__sheet[index][getrange(row=top, column=left)].value = value
 
     def __setcolumnnames(self, index):
 
-        self.__mergecells(index=index, top=1, bottom=1, left='A', right='M', value=Const.WELCOME_TEXT)
+        try:
+            self.__mergecells(index=index, top=1, bottom=1, left='A', right='M', value=Const.WELCOME_TEXT)
+        except:
+            print("welcome text merging fail")
 
         # CALLS
-        self.__mergecells(index=index, value='CALLS', top=2, bottom=2, left='A', right='F')
+        try:
+            self.__mergecells(index=index, value='CALLS', top=2, bottom=2, left='A', right='F')
+        except:
+            print("calls merginf failed")
         # PUTS
-        self.__mergecells(index=index, value='PUTS', top=2, bottom=2, left='H', right='M')
+        try:
+            self.__mergecells(index=index, value='PUTS', top=2, bottom=2, left='H', right='M')
+        except:
+            print("puts merging failed")
 
         # LTP
-        self.__sheet[index].cell(column=Const.CALLS_LTP, row=3).value = Const.LTP
-        self.__sheet[index].cell(column=Const.PUTS_LTP, row=3).value = Const.LTP
+        self.__sheet[index][getrange(column=Const.CALLS_LTP, row=3)].value = Const.LTP
+        self.__sheet[index][getrange(column=Const.PUTS_LTP, row=3)].value = Const.LTP
 
         # OI
-        self.__sheet[index].cell(column=Const.CALLS_OI, row=3).value = Const.OI
-        self.__sheet[index].cell(column=Const.PUTS_OI, row=3).value = Const.OI
+        self.__sheet[index][getrange(column=Const.CALLS_OI, row=3)].value = Const.OI
+        self.__sheet[index][getrange(column=Const.PUTS_OI, row=3)].value = Const.OI
 
         # CHANGE OF OI
-        self.__sheet[index].cell(column=Const.CALLS_CHANGE_IN_OI, row=3).value = Const.CHANGE_IN_OI
-        self.__sheet[index].cell(column=Const.PUTS_CHANGE_IN_OI, row=3).value = Const.CHANGE_IN_OI
+        self.__sheet[index][getrange(column=Const.CALLS_CHANGE_IN_OI, row=3)].value = Const.CHANGE_IN_OI
+        self.__sheet[index][getrange(column=Const.PUTS_CHANGE_IN_OI, row=3)].value = Const.CHANGE_IN_OI
 
         # TREND 1
-        self.__sheet[index].cell(column=Const.CALLS_TREND1, row=3).value = Const.getTrends(1)
-        self.__sheet[index].cell(column=Const.PUTS_TREND1, row=3).value = Const.getTrends(1)
+        self.__sheet[index][getrange(column=Const.CALLS_TREND1, row=3)].value = Const.getTrends(1)
+        self.__sheet[index][getrange(column=Const.PUTS_TREND1, row=3)].value = Const.getTrends(1)
 
         # TREND 2
-        self.__sheet[index].cell(column=Const.CALLS_TREND2, row=3).value = Const.getTrends(2)
-        self.__sheet[index].cell(column=Const.PUTS_TREND2, row=3).value = Const.getTrends(2)
+        self.__sheet[index][getrange(column=Const.CALLS_TREND2, row=3)].value = Const.getTrends(2)
+        self.__sheet[index][getrange(column=Const.PUTS_TREND2, row=3)].value = Const.getTrends(2)
 
         # TREND 3
-        self.__sheet[index].cell(column=Const.CALLS_TREND3, row=3).value = Const.getTrends(3)
-        self.__sheet[index].cell(column=Const.PUTS_TREND3, row=3).value = Const.getTrends(3)
+        self.__sheet[index][getrange(column=Const.CALLS_TREND3, row=3)].value = Const.getTrends(3)
+        self.__sheet[index][getrange(column=Const.PUTS_TREND3, row=3)].value = Const.getTrends(3)
 
         # STRIKE PRICE
-        self.__sheet[index].cell(column=Const.EXCEL_STRIKE_PRICE_COLUMN, row=3).value = Const.STRIKE_PRICE
+        self.__sheet[index][getrange(column=Const.EXCEL_STRIKE_PRICE_COLUMN, row=3)].value = Const.STRIKE_PRICE
 
         # SET HEADING STYLE
-        t = self.__sheet[index].cell(range=getrange(column='A', column2='M', row=1, row2=3))
-        t.font(size=Const.HEADING_SIZE, bold=True)
+        for i in 'ABCDEFGHIJKLM':
+            for j in range(1,4):
+                self.__sheet[index][getrange(column=i, row=j)].font = Font(
+                    size=Const.HEADING_SIZE, bold=True)
 
     def __settimestamp(self, index, price, time, date, marketstatus):
         optionname = Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
-        self.__sheet[index].cell('A1').value = optionname + " : " + str(price) + " as of " + time + " on " + date + (
+        self.__sheet[index]['A1'].value = optionname + " : " + str(price) + " as of " + time + " on " + date + (
             ", Market has been closed" if marketstatus == False else "")
         return True
 
     def __setcellattributes(self, index, colunmname, attribute_data, row):
-        t = self.__sheet[index].cell(range=getrange(column=colunmname, row=row))
+        t = self.__sheet[index][getrange(column=colunmname, row=row)]
         t.value = attribute_data[Const.TEXT]
         style = attribute_data[Const.FONT_STYLE]
         isbold,isitalic = False,False
@@ -182,11 +191,12 @@ class Excel:
                       bold=isbold,
                       italic=isitalic)
         # TODO: Change cell color
-        t.fill = attribute_data[Const.CELL_FILL_COLOR]
-        # if attribute_data[Const.CELL_FILL_COLOR] != None:
-        #     t.Cells.interior.Color = attribute_data[Const.CELL_FILL_COLOR]
-        # else:
-        #     t.Cells.interior.ColorIndex = attribute_data[Const.CELL_FILL_COLOR]
+        if attribute_data[Const.CELL_FILL_COLOR] != None:
+            t.fill = PatternFill(fill_type='solid', start_color=attribute_data[Const.CELL_FILL_COLOR],
+                                 end_color=attribute_data[Const.CELL_FILL_COLOR])
+        else:
+            t.fill = PatternFill(fill_type='solid', start_color=Const.WHITE,
+                                 end_color=Const.WHITE)
 
     def __setcalls(self, index, callsdata, row):
         self.__setcellattributes(index=index,
@@ -268,7 +278,10 @@ class Excel:
         self.__errorCell[index][1].value = s
 
     def __unposterror(self, index):
-        self.__sheet[index].unmerge_cells(self.__errorCell[index][0])
+        try:
+            self.__sheet[index].unmerge_cells(self.__errorCell[index][0])
+        except:
+            print("no error")
         self.__errorCell[index][1].value = ''
 
     def postinexcel(self, data):
