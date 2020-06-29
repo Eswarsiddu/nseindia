@@ -2,8 +2,9 @@ import Sampledata,os
 from Constants import Constants as Const
 from DataRequest import DataRequest
 from ExcelData import ExcelDataFormatter as ExcelFormatter
-from PostInExcel import Excel
+# from PostInExcel import Excel
 from time import sleep
+from test import Excel
 
 Const.TESTING = False
 
@@ -11,7 +12,7 @@ Const.TESTING = False
 timeframe = 5
 
 # Excel file path
-Excelfilepath = os.getcwd() + "\\optionchaindata.xlsx"
+Excelfilepath = os.getcwd() + "/optionchaindata.xlsx"
 
 # Welcome text
 Const.WELCOME_TEXT = "PLEASE WAIT FOR FEW SECONDS, RELOADING AWM 😁😁"
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     refresh_time = Const.REFRESH_TIME * 60
     request = DataRequest()
     exceldata = ExcelFormatter(up=Const.UP, down=Const.DOWN)
-    excel = Excel(filepath=Excelfilepath)
+    excel = Excel(filename=Excelfilepath)
     starting = True
     sleep(2)
     while True:

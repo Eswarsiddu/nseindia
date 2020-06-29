@@ -1,9 +1,9 @@
 from typing import Tuple, Dict
 import os, platform
 
-if platform.system() != 'Windows':
-    print("This program cannot be rune other than windows")
-    exit(0)
+# if platform.system() != 'Windows':
+#     print("This program cannot be rune other than windows")
+#     exit(0)
 
 rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 
