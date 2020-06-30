@@ -154,7 +154,7 @@ class Excel:
         self.__sheet[index][getrange(column=Const.PUTS_TREND3, row=3)].value = Const.getTrends(3)
 
         # STRIKE PRICE
-        self.__sheet[index][getrange(column=Const.EXCEL_STRIKE_PRICE_COLUMN, row=3)].value = Const.STRIKE_PRICE
+        self.__sheet[index][getrange(column=Const.STRIKE_PRICE_COLUMN, row=3)].value = Const.STRIKE_PRICE
 
         # SET HEADING STYLE
         for i in 'ABCDEFGHIJKLM':
@@ -251,13 +251,13 @@ class Excel:
                                  row=row)
 
     def __postdatainexcel(self, index, Data):
-        strikes = Data[Const.EXCEL_STRIKES]
+        strikes = Data[Const.STRIKES_LIST]
         for i in range(len(strikes)):
             row = i + 4
             data = Data[strikes[i]]
             self.__setcellattributes(index=index,
                                      attribute_data=data[Const.STRIKE_PRICE],
-                                     colunmname=Const.EXCEL_STRIKE_PRICE_COLUMN,
+                                     colunmname=Const.STRIKE_PRICE_COLUMN,
                                      row=row)
 
             self.__setcalls(index=index,

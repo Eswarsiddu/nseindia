@@ -8,7 +8,7 @@ import os, platform
 #rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 
 def rgbToInt(r,g,b):
-    return '%02x%02x%02x' % (r,g,b)
+    return '#%02x%02x%02x' % (r,g,b)
 
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',
@@ -73,28 +73,28 @@ class Constants:
     DOWN: int = 8
     INTIALIZING = False
     WELCOME_TEXT = ""
-    CALLS_OI = 'A'
-    CALLS_CHANGE_IN_OI = 'B'
-    CALLS_LTP = 'F'
-    CALLS_TREND1 = 'C'
-    CALLS_TREND2 = 'D'
-    CALLS_TREND3 = 'E'
+    CALLS_OI = 0
+    CALLS_CHANGE_IN_OI = 2
+    CALLS_LTP = 1
+    CALLS_TREND1 = 3
+    CALLS_TREND2 = 4
+    CALLS_TREND3 = 5
 
     REFRESH_TIME = 3
 
-    EXCEL_STRIKE_PRICE_COLUMN = 'G'
+    STRIKE_PRICE_COLUMN = 0
 
-    PUTS_OI = 'H'
-    PUTS_CHANGE_IN_OI = 'I'
-    PUTS_LTP = 'M'
-    PUTS_TREND1 = 'J'
-    PUTS_TREND2 = 'K'
-    PUTS_TREND3 = 'L'
+    PUTS_OI = 0
+    PUTS_CHANGE_IN_OI = 2
+    PUTS_LTP = 1
+    PUTS_TREND1 = 3
+    PUTS_TREND2 = 4
+    PUTS_TREND3 = 5
 
     NIFTY_NAME = 'NIFTY'
     BANK_NIFTY_NAME = 'BANK NIFTY'
 
-    EXCEL_STRIKES: str = "strikeprices"
+    STRIKES_LIST: str = "strikeprices"
     NIFTY: int = 0
     BANK_NIFTY: int = 1
     STRIKE_PRICE: str = 'STRIKE PRICE'
@@ -140,7 +140,7 @@ class Constants:
     BOLD = 'bold'
     ITALIC = 'italic'
     BOLD_ITALIC = 'bold italic'
-    REGULAR = 'regular'
+    REGULAR = 'normal'
     HEADING_SIZE = 15
 
     EXCEL_POSTING_AVG_TIME = 0

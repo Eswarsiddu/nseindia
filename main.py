@@ -1,7 +1,7 @@
 import Sampledata,os
 from Constants import Constants as Const
 from DataRequest import DataRequest
-from ExcelData import ExcelDataFormatter as ExcelFormatter
+from ExcelData import DataFormatter
 # from PostInExcel import Excel
 from time import sleep
 from test import Excel
@@ -62,8 +62,8 @@ if __name__ == "__main__":
 
     refresh_time = Const.REFRESH_TIME * 60
     request = DataRequest()
-    exceldata = ExcelFormatter(up=Const.UP, down=Const.DOWN)
-    excel = Excel(filename=Excelfilepath)
+    dataformatter = DataFormatter(up=Const.UP, down=Const.DOWN)
+    #excel = Excel(filename=Excelfilepath)
     starting = True
     sleep(2)
     while True:
@@ -71,13 +71,14 @@ if __name__ == "__main__":
             sleep(refresh_time)
         starting = False
         Data = request.request_data
-        Data = exceldata.update_data(Data)
-        try:
-            excel.postinexcel(data=Data)
-        except:
-            print("Reopening excel...")
-            excel.setupexcel()
-            excel.postinexcel(data=Data)
+        Data = dataformatter.update_data(Data)
+        print(Data[0][9900][Const.STRIKE_PRICE].keys())
+        # try:
+        #     excel.postinexcel(data=Data)
+        # except:
+        #     print("Reopening excel...")
+        #     excel.setupexcel()
+        #     excel.postinexcel(data=Data)
         if Data[Const.NIFTY][Const.ERROR] != None:
             request.reset_data()
 

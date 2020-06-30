@@ -33,7 +33,7 @@ def getStrikeRange(turnoverprice, up, down, index):
     return l
 
 
-def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=Const.REGULAR, fontsize=11):
+def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=Const.REGULAR, fontsize=9):
     return {Const.TEXT: text, Const.FONT_SIZE: fontsize, Const.FONT_STYLE: fontstyle, Const.FONT_COLOR: fontcolor,
             Const.CELL_FILL_COLOR: cellcolor}
 
@@ -46,13 +46,13 @@ def modify_data(options, calls_changeinoi, puts_changeinoi, turnoverprice):
 
     for i in range(len(upstrikes)):
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
-        options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE(i+1)
+        # options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE(i+1)
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
         options[upstrikes[len(upstrikes)-1-i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
 
     for i in range(len(downstrikes)):
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.CELL_FILL_COLOR] = Const.BLUE
-        options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE(i+1)
+        # options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_SIZE] = Const.FONTSIZE(i+1)
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_STYLE] = Const.BOLD
         options[downstrikes[i]][Const.STRIKE_PRICE][Const.FONT_COLOR] = Const.WHITE
     return options
@@ -170,7 +170,7 @@ def insertionsort(val, strikeprice, arr):
     return arr
 
 
-def analyse_data(data, up, down, index):
+def analyse_data(data, up, down,index):
     options = {}
     if(data[Const.ERROR]!=None):
         options[Const.ERROR] = data[Const.ERROR]
@@ -183,7 +183,7 @@ def analyse_data(data, up, down, index):
     options[Const.ERROR] = data[Const.ERROR]
     turnoverprice = data[Const.TURNOVER_PRICE]
     Strikeprices: List[int] = getStrikeRange(turnoverprice=turnoverprice, up=up, down=down, index=index)
-    options[Const.EXCEL_STRIKES] = Strikeprices
+    options[Const.STRIKES_LIST] = Strikeprices
     calls_changeinoi, puts_changeinoi = [], []
 
     for strikeprice in Strikeprices:
@@ -214,13 +214,11 @@ def analyse_data(data, up, down, index):
     return options
 
 
-class ExcelDataFormatter:
-    def __init__(self, up, down):
-        self.up = up
-        self.down = down
+class DataFormatter:
+    def __init__(self, up, down,index):
+        self.__up = up
+        self.__down = down
+        self.__index=index
 
     def update_data(self, data):
-        l = [None,None]
-        l[Const.NIFTY] = analyse_data(data=data[Const.NIFTY], up=self.up, down=self.down, index=Const.NIFTY)
-        l[Const.BANK_NIFTY] = analyse_data(data=data[Const.BANK_NIFTY], up=self.up, down=self.down, index=Const.BANK_NIFTY)
-        return l
+        return analyse_data(data=data, up=self.__up, down=self.__down, index=self.__index)

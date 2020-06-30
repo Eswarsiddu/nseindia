@@ -79,13 +79,14 @@ def get_options(options, request,index):
 
 
 class DataRequest:
-
-    def __init__(self):
+    def __init__(self,index):
         self.Data = None
+        self.__index=index
+        self.__url=Const.URLS[index]
         self.reset_data()
 
     def reset_data(self):
-        self.Data = [{},{}]
+        self.Data = {}
 
     @property
     def request_data(self):
@@ -93,11 +94,4 @@ class DataRequest:
             Sampledata.testindex+=1
             return Sampledata.testdata[Sampledata.testindex]
 
-        self.Data[Const.NIFTY] = get_options(options=self.Data[Const.NIFTY],
-                                             request=Const.URLS[Const.NIFTY],
-                                             index=Const.NIFTY)
-
-        self.Data[Const.BANK_NIFTY] = get_options(options=self.Data[Const.BANK_NIFTY],
-                                                  request=Const.URLS[Const.BANK_NIFTY],
-                                                  index=Const.BANK_NIFTY)
-        return self.Data
+        return get_options(options=self.Data,request=self.__url,index=self.__index)
