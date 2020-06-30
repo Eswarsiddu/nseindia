@@ -173,18 +173,30 @@ class optionindex:
             self.setrowvalue(data=Data[Const.CALLS], frame=self.frames["body"][i][Const.CALLS])
             self.setrowvalue(data=Data[Const.PUTS], frame=self.frames["body"][i][Const.PUTS])
 
+class Optionchaindataset:
+    def __init__(self,index,root,packside):
+        self.__index = index
+        self.__root=root
+        self.__name=Const.NIFTY_NAME if self.__index == Const.NIFTY else Const.BANK_NIFTY_NAME
+        frame = LabelFrame(master=self.__root, text=self.__name, width=535, height=483)
+        frame.pack(side=packside, expand=1, fill="both")
+
+
+class HomePage:
+    def __init__(self,root):
+        self.__root=root
+        Homepage = Frame(root, width=1071, height=483)
+        Optionchaindataset(root=root,index=Const.NIFTY,packside=LEFT)
+        Optionchaindataset(root=root,index=Const.BANK_NIFTY,packside=RIGHT)
+        Homepage.pack(fill="both", expand=1)
+
 my_notebook = ttk.Notebook(main)
 my_notebook.pack()
 
 Homepage = Frame(my_notebook,width=1071,height=483)
-niftyframe = LabelFrame(master=Homepage, text=Const.NIFTY_NAME, width=535, height=483)
-niftyframe.pack(side=LEFT,expand=1,fill="both")
-bankniftyframe= LabelFrame(master=Homepage, text=Const.BANK_NIFTY_NAME, width=535, height=483)
-bankniftyframe.pack(side=RIGHT,expand=1,fill="both")
-niftyframe.pack(fill="both",expand=1)
-bankniftyframe.pack(fill="both",expand=1)
-my_notebook.add(Homepage, text="HOME PAGE")
-
+Homepageobject = HomePage(root=Homepage)
+Homepage.pack(fill="both",expand=1)
+my_notebook.add(Homepage,text="HOME PAGE")
 
 NiftyPage = Frame(my_notebook,width=1071,height=483)
 niftypageobject = optionindex(root=NiftyPage,index=Const.NIFTY)
