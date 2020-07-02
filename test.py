@@ -190,7 +190,6 @@ class Excel:
                       color=attribute_data[Const.FONT_COLOR],
                       bold=isbold,
                       italic=isitalic)
-        # TODO: Change cell color
         if attribute_data[Const.CELL_FILL_COLOR] != None:
             t.fill = PatternFill(fill_type='solid', start_color=attribute_data[Const.CELL_FILL_COLOR],
                                  end_color=attribute_data[Const.CELL_FILL_COLOR])
