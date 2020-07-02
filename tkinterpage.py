@@ -23,14 +23,35 @@ Pack = lambda obj : obj.pack(fill="both",expand=1)
 
 class optionsextra:
     def __init__(self,root,update):
+        self.updatedata = update
         self.root = root
+        self.stopped = False
+        self.timer = 0
+        self.starting = True
+        options = LabelFrame(self.root, text="Controller", padx=100)
+        self.Timer = Label(options, text="Strarting", width=15)
+        self.Timer.pack(side=LEFT)
+        options.pack(side=BOTTOM)
+        self.start()
+
+    def start(self):
+        hr = time.strftime("%H")
+        min = time.strftime("%M")
+        sec = time.strftime("%S")
+        self.Timer.config(text=hr + " : " + min + " : " + sec)
+        if self.stopped == False:
+            self.timer += 1
+            if self.starting == True and self.timer == 5:
+                self.updatedata()
+                self.starting = False
+            if (self.timer >= timeframe * 60):
+                self.updatedata()
+                self.timer = 0
+            self.Timer.after(ms=1000, func=self.start)
 
 class optionindex:
     def __init__(self,root,index):
         self.index = index
-        self.timer = 0
-        self.starting = True
-        self.stopped = False
         self.request = DataRequest(index=index)
         self.Dataformatter = DataFormatter(index=index)
         self.root=root
@@ -118,27 +139,10 @@ class optionindex:
                         t[i][j].pack(side=TOP)
             self.frames["body"].append(t)
 
-        # Extras
-        options = LabelFrame(self.root, text="Controller", padx=100)
-        self.Timer = Label(options, text="Strarting", width=15)
-        self.Timer.pack(side=LEFT)
-        options.pack(side=BOTTOM)
-        self.start()
+        # TODO: Extras
+        self.Extras = optionsextra(root=self.root,update=self.updatedata)
+        self.Extras.stopped = False
 
-    def start(self):
-        hr = time.strftime("%H")
-        min = time.strftime("%M")
-        sec = time.strftime("%S")
-        self.Timer.config(text=hr + " : " + min + " : " + sec)
-        if self.stopped == False:
-            self.timer += 1
-            if self.starting == True and self.timer == 5:
-                self.updatedata()
-                self.starting = False
-            if (self.timer >= timeframe * 60):
-                self.updatedata()
-                self.timer = 0
-            self.Timer.after(ms=1000, func=self.start)
 
     def setheading(self,time, date, price, marketstatus):
         optionname = Const.NIFTY_NAME if self.index == Const.NIFTY else Const.BANK_NIFTY_NAME
@@ -167,7 +171,7 @@ class optionindex:
             print("No network")
             return
         if data[Const.MARKET_STATUS] == False:
-            self.stopped = True
+            self.Extras.stopped = True
         self.setheading(price=data[Const.PRICE],
                    time=data[Const.TIME],
                    date=data[Const.DATE],

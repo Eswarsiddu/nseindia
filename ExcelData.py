@@ -216,8 +216,8 @@ def analyse_data(data, up, down,index):
 
 class DataFormatter:
     def __init__(self,index):
-        self.__up = Const.UP
-        self.__down = Const.DOWN
+        self.__up = Const.UP[index]
+        self.__down = Const.DOWN[index]
         self.__index=index
 
     def update_data(self, data):
