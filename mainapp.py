@@ -24,9 +24,7 @@ def getsizeandpos(height,width):
     screenwidth = main.winfo_screenwidth()
     posy = int(screenheight/2 - height/2)
     posx = int(screenwidth/2 - width/2)
-    s = str(width)+"x"+str(height)+"+"+str(posx)+"+"+str(posy)
-    print("pos:",s)
-    return s
+    return str(width)+"x"+str(height)+"+"+str(posx)+"+"+str(posy)
 
 main.geometry(getsizeandpos(width=1240,height=550))
 
