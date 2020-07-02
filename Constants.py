@@ -24,8 +24,8 @@ class Constants:
         os.system("python -m pip install requests")
 
     @staticmethod
-    def getTrends(i):
-        return str(Constants.REFRESH_TIME * i) + " min"
+    def getTrends(i,index):
+        return str(Constants.REFRESH_TIME[index] * i) + " min"
 
     @staticmethod
     def initialise(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
@@ -68,6 +68,7 @@ class Constants:
             exit(0)
         Constants.REFRESH_TIME = refreshtime
 
+
     strikesdiff = [50, 100]
     INTIALIZING = False
     WELCOME_TEXT = ""
@@ -93,7 +94,7 @@ class Constants:
     PUTS_TREND2 = [4,4]
     PUTS_TREND3 = [5,5]
 
-    REFRESH_TIME = [3,]
+    REFRESH_TIME = [5,5]
 
     NIFTY_NAME = 'NIFTY'
     BANK_NIFTY_NAME = 'BANK NIFTY'
