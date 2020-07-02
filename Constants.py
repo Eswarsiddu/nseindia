@@ -69,27 +69,31 @@ class Constants:
         Constants.REFRESH_TIME = refreshtime
 
     strikesdiff = [50, 100]
-    UP: int = 8
-    DOWN: int = 8
     INTIALIZING = False
     WELCOME_TEXT = ""
-    CALLS_OI = 0
-    CALLS_CHANGE_IN_OI = 2
-    CALLS_LTP = 1
-    CALLS_TREND1 = 3
-    CALLS_TREND2 = 4
-    CALLS_TREND3 = 5
 
-    REFRESH_TIME = 3
+    UP = [8,8]
+    DOWN = [8,8]
 
-    STRIKE_PRICE_COLUMN = 0
+    CALLS_POS = [0,0]
+    STRIKEPRICE_POS = [1,1]
+    PUTS_POS = [2,2]
 
-    PUTS_OI = 0
-    PUTS_CHANGE_IN_OI = 2
-    PUTS_LTP = 1
-    PUTS_TREND1 = 3
-    PUTS_TREND2 = 4
-    PUTS_TREND3 = 5
+    CALLS_OI = [0,0]
+    CALLS_CHANGE_IN_OI = [2,2]
+    CALLS_LTP = [1,1]
+    CALLS_TREND1 = [3,3]
+    CALLS_TREND2 = [4,4]
+    CALLS_TREND3 = [5,5]
+
+    PUTS_OI = [0,0]
+    PUTS_CHANGE_IN_OI = [2,2]
+    PUTS_LTP = [1,1]
+    PUTS_TREND1 = [3,3]
+    PUTS_TREND2 = [4,4]
+    PUTS_TREND3 = [5,5]
+
+    REFRESH_TIME = [3,]
 
     NIFTY_NAME = 'NIFTY'
     BANK_NIFTY_NAME = 'BANK NIFTY'
@@ -145,7 +149,6 @@ class Constants:
 
     EXCEL_POSTING_AVG_TIME = 0
     REQUESTING_AVG_TIME = 0
-    DIALOGUE_BOX_ROW = 6 + UP + DOWN
 
     VISIBLE_UPDATING = True
 
