@@ -131,6 +131,9 @@ class Constants:
     NO_DATA_FROM_SITE ='nodatainjson'
     CLOSED_EXCEL ='excelclosed'
 
+    BODY = "body"
+    HEADING = "heading"
+
     RED = rgbToInt(230, 0, 0)
     GREEN = rgbToInt(0, 230, 0)
     YELLOW = rgbToInt(204, 204, 0)
