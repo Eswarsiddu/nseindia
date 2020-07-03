@@ -1,24 +1,6 @@
-import time
-from tkinter import *
-from tkinter import font, ttk
-from Constants import Constants as Const
-import os
-from DataRequest import DataRequest
-from ExcelData import DataFormatter
-
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
 
-url = "https://www.google.com"
-iconpath = os.getcwd() + "\\logo.ico"
-
-padyvalue = 7
-entrywidth = 10
-Const.REFRESH_TIME = [5, 5]
-Const.TESTING = False
-x = 10
-main = Tk(className="Option-Chain Data")
-# main.iconbitmap(iconpath)
 def getsizeandpos(height,width):
     screenheight = main.winfo_screenheight()
     screenwidth = main.winfo_screenwidth()
@@ -28,12 +10,7 @@ def getsizeandpos(height,width):
     print(s)
     return s
 
-main.geometry(getsizeandpos(width=1240,height=550))
 
-
-Pack = lambda obj: obj.pack(fill="both", expand=1)
-
-my_notebook = ttk.Notebook(main)
 
 
 class optionsextra:
@@ -92,85 +69,86 @@ class optionindex:
         self.Dataformatter = DataFormatter(index=index)
         self.root = root
         self.frames = {}
-        up = Const.UP[index]
-        down = Const.DOWN[index]
+        self.up = Const.UP[index]
+        self.down = Const.DOWN[index]
         Table = LabelFrame(self.root, text="OPTION CHAIN DATA", bg=None)
-        Headinglabel = Label(Table, text="PLEASE WAIT FOR FEW SECONDS, RELOADING AWM 😁😁")
+        Headinglabel = Label(Table, text="NOT YET STARTED")
         Headinglabel.grid(row=0, column=0, columnspan=3)
-        CALLS = LabelFrame(Table, text="CALLS")
-        Strikeprice = LabelFrame(Table, text="STRIKE PRICE")
-        PUTS = LabelFrame(Table, text="PUTS")
-        Table.pack()
+        self.CALLS = LabelFrame(Table, text="CALLS")
+        self.Strikeprice = LabelFrame(Table, text="STRIKE PRICE")
+        self.PUTS = LabelFrame(Table, text="PUTS")
         self.frames["heading"] = Headinglabel
         self.frames["body"] = []
 
-        CALLSOI = LabelFrame(CALLS, text=Const.OI)
-        CALLSLTP = LabelFrame(CALLS, text=Const.LTP)
-        CALLSCOI = LabelFrame(CALLS, text=Const.CHANGE_IN_OI)
-        CALLSTREND1 = LabelFrame(CALLS, text=Const.getTrends(i=1, index=index))
-        CALLSTREND2 = LabelFrame(CALLS, text=Const.getTrends(i=2, index=index))
-        CALLSTREND3 = LabelFrame(CALLS, text=Const.getTrends(i=3, index=index))
+        self.CALLSOI = LabelFrame(self.CALLS, text=Const.OI)
+        self.CALLSLTP = LabelFrame(self.CALLS, text=Const.LTP)
+        self.CALLSCOI = LabelFrame(self.CALLS, text=Const.CHANGE_IN_OI)
+        self.CALLSTREND1 = LabelFrame(self.CALLS, text=Const.getTrends(i=1, index=index))
+        self.CALLSTREND2 = LabelFrame(self.CALLS, text=Const.getTrends(i=2, index=index))
+        self.CALLSTREND3 = LabelFrame(self.CALLS, text=Const.getTrends(i=3, index=index))
 
-        PUTSOI = LabelFrame(PUTS, text=Const.OI)
-        PUTSLTP = LabelFrame(PUTS, text=Const.LTP)
-        PUTSCOI = LabelFrame(PUTS, text=Const.CHANGE_IN_OI)
-        PUTSTREND1 = LabelFrame(PUTS, text=Const.getTrends(i=1, index=index))
-        PUTSTREND2 = LabelFrame(PUTS, text=Const.getTrends(i=2, index=index))
-        PUTSTREND3 = LabelFrame(PUTS, text=Const.getTrends(i=3, index=index))
+        self.PUTSOI = LabelFrame(self.PUTS, text=Const.OI)
+        self.PUTSLTP = LabelFrame(self.PUTS, text=Const.LTP)
+        self.PUTSCOI = LabelFrame(self.PUTS, text=Const.CHANGE_IN_OI)
+        self.PUTSTREND1 = LabelFrame(self.PUTS, text=Const.getTrends(i=1, index=index))
+        self.PUTSTREND2 = LabelFrame(self.PUTS, text=Const.getTrends(i=2, index=index))
+        self.PUTSTREND3 = LabelFrame(self.PUTS, text=Const.getTrends(i=3, index=index))
 
-        Strike = LabelFrame(Strikeprice, text=Const.STRIKE_PRICE)
-        Strike.grid(row=0, column=0)
+        self.Strike = LabelFrame(self.Strikeprice, text=Const.STRIKE_PRICE)
+        self.Strike.grid(row=0, column=0)
 
 
-        CALLS.grid(row=1, column=Const.CALLS_POS[index])
-        Strikeprice.grid(row=1, column=Const.STRIKEPRICE_POS[index])
-        PUTS.grid(row=1, column=Const.PUTS_POS[index])
+        self.setcolumnpositions()
+        self.loadrows()
+        Table.pack()
+        # TODO: Controller
+        self.Controller = optionsextra(root=self.root, update=self.updatedata, index=index,
+                                       datareset=self.request.reset_data)
+        self.Controller.stopped = False
 
-        CALLSOI.grid(row=0, column=Const.CALLS_OI[index])
-        CALLSLTP.grid(row=0, column=Const.CALLS_LTP[index])
-        CALLSCOI.grid(row=0, column=Const.CALLS_CHANGE_IN_OI[index])
-        CALLSTREND1.grid(row=0, column=Const.CALLS_TREND1[index])
-        CALLSTREND2.grid(row=0, column=Const.CALLS_TREND2[index])
-        CALLSTREND3.grid(row=0, column=Const.CALLS_TREND3[index])
+    def setcolumnpositions(self):
+        self.CALLS.grid(row=1, column=Const.CALLS_POS[self.index])
+        self.Strikeprice.grid(row=1, column=Const.STRIKEPRICE_POS[self.index])
+        self.PUTS.grid(row=1, column=Const.PUTS_POS[self.index])
 
-        PUTSOI.grid(row=0, column=Const.PUTS_OI[index])
-        PUTSLTP.grid(row=0, column=Const.PUTS_LTP[index])
-        PUTSCOI.grid(row=0, column=Const.PUTS_CHANGE_IN_OI[index])
-        PUTSTREND1.grid(row=0, column=Const.PUTS_TREND1[index])
-        PUTSTREND2.grid(row=0, column=Const.PUTS_TREND2[index])
-        PUTSTREND3.grid(row=0, column=Const.PUTS_TREND3[index])
+        self.CALLSOI.grid(row=0, column=Const.CALLS_OI[self.index])
+        self.CALLSLTP.grid(row=0, column=Const.CALLS_LTP[self.index])
+        self.CALLSCOI.grid(row=0, column=Const.CALLS_CHANGE_IN_OI[self.index])
+        self.CALLSTREND1.grid(row=0, column=Const.CALLS_TREND1[self.index])
+        self.CALLSTREND2.grid(row=0, column=Const.CALLS_TREND2[self.index])
+        self.CALLSTREND3.grid(row=0, column=Const.CALLS_TREND3[self.index])
 
-        # ROW
-        for _ in range(up + down + 1):
-            callsoi = Label(CALLSOI, text="-", width=x, height=1)
-            callsltp = Label(CALLSLTP, text="-", width=x, height=1)
-            callscoi = Label(CALLSCOI, text="-", width=x, height=1)
-            callstrend1 = Label(CALLSTREND1, text="-", width=x, height=1)
-            callstrend2 = Label(CALLSTREND2, text="-", width=x, height=1)
-            callstrend3 = Label(CALLSTREND3, text="-", width=x, height=1)
-            strike = Label(Strike, text="-", width=x, height=1)
-            putsoi = Label(PUTSOI, text="-", width=x, height=1)
-            putsltp = Label(PUTSLTP, text="-", width=x, height=1)
-            putscoi = Label(PUTSCOI, text="-", width=x, height=1)
-            putstrend1 = Label(PUTSTREND1, text="-", width=x, height=1)
-            putstrend2 = Label(PUTSTREND2, text="-", width=x, height=1)
-            putstrend3 = Label(PUTSTREND3, text="-", width=x, height=1)
+        self.PUTSOI.grid(row=0, column=Const.PUTS_OI[self.index])
+        self.PUTSLTP.grid(row=0, column=Const.PUTS_LTP[self.index])
+        self.PUTSCOI.grid(row=0, column=Const.PUTS_CHANGE_IN_OI[self.index])
+        self.PUTSTREND1.grid(row=0, column=Const.PUTS_TREND1[self.index])
+        self.PUTSTREND2.grid(row=0, column=Const.PUTS_TREND2[self.index])
+        self.PUTSTREND3.grid(row=0, column=Const.PUTS_TREND3[self.index])
 
-            calls = {Const.OI: callsoi,
-                     Const.LTP: callsltp,
-                     Const.CHANGE_IN_OI: callscoi,
-                     Const.TRENDS1: callstrend1,
-                     Const.TRENDS2: callstrend2,
-                     Const.TRENDS3: callstrend3}
+    def loadrows(self):
+        presentcount = len(self.frames["body"])
+        requestedcount = self.up + self.down + 1
+        requiredrows = requestedcount-presentcount
+        if requiredrows < 0:
+            self.removeerows(rows=abs(requiredrows))
+        elif requiredrows > 0:
+            self.addsrows(rows=abs(requiredrows))
 
-            puts = {Const.OI: putsoi,
-                    Const.LTP: putsltp,
-                    Const.CHANGE_IN_OI: putscoi,
-                    Const.TRENDS1: putstrend1,
-                    Const.TRENDS2: putstrend2,
-                    Const.TRENDS3: putstrend3}
-
-            t = {Const.STRIKE_PRICE: strike, Const.CALLS: calls, Const.PUTS: puts}
+    def addsrows(self,rows):
+        for _ in range(rows):
+            t = {Const.STRIKE_PRICE: Label(self.Strike, text="-", width=x, height=1),
+                 Const.CALLS: {Const.OI: Label(self.CALLSOI, text="-", width=x, height=1),
+                               Const.LTP: Label(self.CALLSLTP, text="-", width=x, height=1),
+                               Const.CHANGE_IN_OI: Label(self.CALLSCOI, text="-", width=x, height=1),
+                               Const.TRENDS1: Label(self.CALLSTREND1, text="-", width=x, height=1),
+                               Const.TRENDS2: Label(self.CALLSTREND2, text="-", width=x, height=1),
+                               Const.TRENDS3: Label(self.CALLSTREND3, text="-", width=x, height=1)},
+                 Const.PUTS: {Const.OI: Label(self.PUTSOI, text="-", width=x, height=1),
+                              Const.LTP: Label(self.PUTSLTP, text="-", width=x, height=1),
+                              Const.CHANGE_IN_OI: Label(self.PUTSCOI, text="-", width=x, height=1),
+                              Const.TRENDS1: Label(self.PUTSTREND1, text="-", width=x, height=1),
+                              Const.TRENDS2: Label(self.PUTSTREND2, text="-", width=x, height=1),
+                              Const.TRENDS3: Label(self.PUTSTREND3, text="-", width=x, height=1)}}
             for i in t:
                 if i == Const.STRIKE_PRICE:
                     t[i].pack(side=TOP)
@@ -179,16 +157,26 @@ class optionindex:
                         t[i][j].pack(side=TOP)
             self.frames["body"].append(t)
 
-        # TODO: Controller
-        self.Controller = optionsextra(root=self.root, update=self.updatedata, index=index,
-                                       datareset=self.request.reset_data)
-        self.Controller.stopped = False
+    def removeerows(self,rows):
+        for _ in range(rows):
+            t = self.frames[-1]
+            for i in t:
+                if i == Const.STRIKE_PRICE:
+                    t[i].pack_forget()
+                    t[i].destroy()
+                else:
+                    for j in t[i]:
+                        t[i][j].pack_forget()
+                        t[i][j].destroy()
+            self.frames["body"].pop(-1)
 
-    def setheading(self, time, date, price, marketstatus):
+
+
+    def setheading(self, Time, date, price, marketstatus):
         optionname = getname(index=self.index)
         s = optionname + " " + str(price)
         my_notebook.tab(self.index + 1, text=s)
-        s = optionname + " : " + str(price) + " as of " + time + " on " + date + (
+        s = optionname + " : " + str(price) + " as of " + Time + " on " + date + (
             ", Market has been closed" if marketstatus == False else "")
         self.frames["heading"].config(text=s)
 
@@ -216,7 +204,7 @@ class optionindex:
         # if data[Const.MARKET_STATUS] == False:
         #     self.Extras.stopped = True
         self.setheading(price=data[Const.PRICE],
-                        time=data[Const.TIME],
+                        Time=data[Const.TIME],
                         date=data[Const.DATE],
                         marketstatus=data[Const.MARKET_STATUS])
         strikeprices = data[Const.STRIKES_LIST]
@@ -330,6 +318,8 @@ class Optionchaindataset:
         downvalueslabel = Label(master=root, text="DOWN VALUES")
         self.downvaluesentry = Entry(master=root, width=entrywidth)
 
+        self.errorLabel = Label(master=root,text="")
+
         timeframelabel.grid(row=0, column=0, pady=padyvalue)
         callslabel.grid(row=1, column=0, pady=padyvalue)
         strikepricelabel.grid(row=1, column=2, pady=padyvalue)
@@ -367,12 +357,14 @@ class Optionchaindataset:
         self.putstrend3entry.grid(row=7, column=5, pady=padyvalue)
         self.upvaluesentry.grid(row=8, column=1, pady=padyvalue)
         self.downvaluesentry.grid(row=8, column=4, pady=padyvalue)
+        self.errorLabel.grid(row=9,column=0,columnspan=6,pady=padyvalue)
 
 
 class Homemiddlepage:
-    def __init__(self, t, root):
+    def __init__(self, banknifty, nifty, root):
         self.__root = root
-        self.__t = t
+        self.__banknifty = banknifty
+        self.__nifty = nifty
         self.__enabled = True
         frame = Frame(root)
         but = Checkbutton(master=frame, text="Same as Nifty", command=self.butpressed)
@@ -397,7 +389,7 @@ class Homemiddlepage:
         if self.__enabled != True:
             enabler = 'disabled'
         print(enabler)
-        for child in self.__t.upperframe.winfo_children():
+        for child in self.__banknifty.upperframe.winfo_children():
             child.configure(state=enabler)
 
 
@@ -407,25 +399,43 @@ class HomePage:
         Homepage = Frame(root, width=1071, height=483)
         nifty = Optionchaindataset(root=Homepage, index=Const.NIFTY, packside=LEFT)
         banknifty = Optionchaindataset(root=Homepage, index=Const.BANK_NIFTY, packside=RIGHT)
-        Homemiddlepage(root=Homepage, t=banknifty)
-        Pack(Homepage)
+        Homemiddlepage(root=Homepage, banknifty=banknifty,nifty=nifty)
+        Homepage.pack(fill="both", expand=1)
 
+if __name__ == "__main__":
+    import time
+    from tkinter import *
+    from tkinter import font, ttk
+    import os, platform
+    from DataRequest import DataRequest
+    from ExcelData import DataFormatter
+    from Constants import Constants as Const
 
-NiftyPage = Frame(my_notebook, width=1071, height=483)
-niftypageobject = optionindex(root=NiftyPage, index=Const.NIFTY)
-Pack(NiftyPage)
+    padyvalue = 7
+    entrywidth = 10
+    Const.REFRESH_TIME = [5, 5]
+    Const.TESTING = False
+    x = 10
 
-BankNiftyPage = Frame(my_notebook, width=1071, height=483)
-bankniftypageobject = optionindex(root=BankNiftyPage, index=Const.BANK_NIFTY)
-Pack(BankNiftyPage)
+    main = Tk(className="Option-Chain Data")
+    if platform.system() == "Windows": main.wm_iconbitmap(os.getcwd() + "/logo.ico")
+    main.geometry(getsizeandpos(width=1240, height=550))
+    my_notebook = ttk.Notebook(main)
 
-Homepage = Frame(my_notebook, width=1071, height=483)
-Homepageobject = HomePage(root=Homepage)
-Pack(Homepage)
+    NiftyPage = Frame(my_notebook, width=1071, height=483)
+    niftypageobject = optionindex(root=NiftyPage, index=Const.NIFTY)
+    NiftyPage.pack(fill="both", expand=1)
 
+    BankNiftyPage = Frame(my_notebook, width=1071, height=483)
+    bankniftypageobject = optionindex(root=BankNiftyPage, index=Const.BANK_NIFTY)
+    BankNiftyPage.pack(fill="both", expand=1)
 
-my_notebook.add(Homepage, text="HOME PAGE")
-my_notebook.add(NiftyPage, text=getname(index=Const.NIFTY))
-my_notebook.add(BankNiftyPage, text=getname(index=Const.BANK_NIFTY))
-my_notebook.pack()
-main.mainloop()
+    Homepage = Frame(my_notebook, width=1071, height=483)
+    Homepageobject = HomePage(root=Homepage)
+    Homepage.pack(fill="both", expand=1)
+
+    my_notebook.add(Homepage, text="HOME PAGE")
+    my_notebook.add(NiftyPage, text=getname(index=Const.NIFTY))
+    my_notebook.add(BankNiftyPage, text=getname(index=Const.BANK_NIFTY))
+    my_notebook.pack()
+    main.mainloop()
