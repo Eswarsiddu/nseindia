@@ -33,7 +33,7 @@ def getStrikeRange(turnoverprice, up, down, index):
     return l
 
 
-def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=Const.REGULAR, fontsize=9):
+def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=Const.REGULAR, fontsize=10):
     return {Const.TEXT: text, Const.FONT_SIZE: fontsize, Const.FONT_STYLE: fontstyle, Const.FONT_COLOR: fontcolor,
             Const.CELL_FILL_COLOR: cellcolor}
 

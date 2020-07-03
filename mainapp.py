@@ -24,7 +24,9 @@ def getsizeandpos(height,width):
     screenwidth = main.winfo_screenwidth()
     posy = int(screenheight/2 - height/2)
     posx = int(screenwidth/2 - width/2)
-    return str(width)+"x"+str(height)+"+"+str(posx)+"+"+str(posy)
+    s = str(width)+"x"+str(height)+"+"+str(posx)+"+"+str(posy)
+    print(s)
+    return s
 
 main.geometry(getsizeandpos(width=1240,height=550))
 
@@ -93,46 +95,50 @@ class optionindex:
         up = Const.UP[index]
         down = Const.DOWN[index]
         Table = LabelFrame(self.root, text="OPTION CHAIN DATA", bg=None)
-        Table.pack()
         Headinglabel = Label(Table, text="PLEASE WAIT FOR FEW SECONDS, RELOADING AWM 😁😁")
+        Headinglabel.grid(row=0, column=0, columnspan=3)
         CALLS = LabelFrame(Table, text="CALLS")
         Strikeprice = LabelFrame(Table, text="STRIKE PRICE")
         PUTS = LabelFrame(Table, text="PUTS")
-        Headinglabel.grid(row=0, column=0, columnspan=3)
-        CALLS.grid(row=1, column=Const.CALLS_POS[index])
-        Strikeprice.grid(row=1, column=Const.STRIKEPRICE_POS[index])
-        PUTS.grid(row=1, column=Const.PUTS_POS[index])
+        Table.pack()
         self.frames["heading"] = Headinglabel
         self.frames["body"] = []
 
         CALLSOI = LabelFrame(CALLS, text=Const.OI)
-        CALLSOI.grid(row=0, column=Const.CALLS_OI[index])
         CALLSLTP = LabelFrame(CALLS, text=Const.LTP)
-        CALLSLTP.grid(row=0, column=Const.CALLS_LTP[index])
         CALLSCOI = LabelFrame(CALLS, text=Const.CHANGE_IN_OI)
-        CALLSCOI.grid(row=0, column=Const.CALLS_CHANGE_IN_OI[index])
         CALLSTREND1 = LabelFrame(CALLS, text=Const.getTrends(i=1, index=index))
-        CALLSTREND1.grid(row=0, column=Const.CALLS_TREND1[index])
         CALLSTREND2 = LabelFrame(CALLS, text=Const.getTrends(i=2, index=index))
-        CALLSTREND2.grid(row=0, column=Const.CALLS_TREND2[index])
         CALLSTREND3 = LabelFrame(CALLS, text=Const.getTrends(i=3, index=index))
-        CALLSTREND3.grid(row=0, column=Const.CALLS_TREND3[index])
 
         PUTSOI = LabelFrame(PUTS, text=Const.OI)
-        PUTSOI.grid(row=0, column=Const.PUTS_OI[index])
         PUTSLTP = LabelFrame(PUTS, text=Const.LTP)
-        PUTSLTP.grid(row=0, column=Const.PUTS_LTP[index])
         PUTSCOI = LabelFrame(PUTS, text=Const.CHANGE_IN_OI)
-        PUTSCOI.grid(row=0, column=Const.PUTS_CHANGE_IN_OI[index])
         PUTSTREND1 = LabelFrame(PUTS, text=Const.getTrends(i=1, index=index))
-        PUTSTREND1.grid(row=0, column=Const.PUTS_TREND1[index])
         PUTSTREND2 = LabelFrame(PUTS, text=Const.getTrends(i=2, index=index))
-        PUTSTREND2.grid(row=0, column=Const.PUTS_TREND2[index])
         PUTSTREND3 = LabelFrame(PUTS, text=Const.getTrends(i=3, index=index))
-        PUTSTREND3.grid(row=0, column=Const.PUTS_TREND3[index])
 
         Strike = LabelFrame(Strikeprice, text=Const.STRIKE_PRICE)
         Strike.grid(row=0, column=0)
+
+
+        CALLS.grid(row=1, column=Const.CALLS_POS[index])
+        Strikeprice.grid(row=1, column=Const.STRIKEPRICE_POS[index])
+        PUTS.grid(row=1, column=Const.PUTS_POS[index])
+
+        CALLSOI.grid(row=0, column=Const.CALLS_OI[index])
+        CALLSLTP.grid(row=0, column=Const.CALLS_LTP[index])
+        CALLSCOI.grid(row=0, column=Const.CALLS_CHANGE_IN_OI[index])
+        CALLSTREND1.grid(row=0, column=Const.CALLS_TREND1[index])
+        CALLSTREND2.grid(row=0, column=Const.CALLS_TREND2[index])
+        CALLSTREND3.grid(row=0, column=Const.CALLS_TREND3[index])
+
+        PUTSOI.grid(row=0, column=Const.PUTS_OI[index])
+        PUTSLTP.grid(row=0, column=Const.PUTS_LTP[index])
+        PUTSCOI.grid(row=0, column=Const.PUTS_CHANGE_IN_OI[index])
+        PUTSTREND1.grid(row=0, column=Const.PUTS_TREND1[index])
+        PUTSTREND2.grid(row=0, column=Const.PUTS_TREND2[index])
+        PUTSTREND3.grid(row=0, column=Const.PUTS_TREND3[index])
 
         # ROW
         for _ in range(up + down + 1):
@@ -173,11 +179,10 @@ class optionindex:
                         t[i][j].pack(side=TOP)
             self.frames["body"].append(t)
 
-        # TODO: Extras
-        self.Extras = optionsextra(root=self.root, update=self.updatedata, index=index,
-                                   datareset=self.request.reset_data)
-        self.Extras.stopped = False
-        self.Extras.stopped = False
+        # TODO: Controller
+        self.Controller = optionsextra(root=self.root, update=self.updatedata, index=index,
+                                       datareset=self.request.reset_data)
+        self.Controller.stopped = False
 
     def setheading(self, time, date, price, marketstatus):
         optionname = getname(index=self.index)
@@ -223,10 +228,8 @@ class optionindex:
 
 
 class Optionchaindataset:
-    def __init__(self, index, root, packside,start,stop):
+    def __init__(self, index, root, packside):
         self.__index = index
-        self.__start = start
-        self.__stop = stop
         name = getname(index=index)
         frame = LabelFrame(master=root, text=name, width=535, height=483)
         self.upperframe = Frame(master=frame)
@@ -277,7 +280,6 @@ class Optionchaindataset:
     def startpressed(self):
         self.startbut.config(state=DISABLED)
         self.stopbut.config(state=NORMAL)
-        self.__start()
         print("screenheight:",main.winfo_screenheight(),main.winfo_screenwidth())
         # TODO: changing the geometry
         # main.geometry("1253x600+100+100")
@@ -285,7 +287,6 @@ class Optionchaindataset:
     def stoppressed(self):
         self.startbut.config(state=NORMAL)
         self.stopbut.config(state=DISABLED)
-        self.__stop()
 
 
     def setupupperframe(self, root):
@@ -380,6 +381,10 @@ class Homemiddlepage:
         Button(master=frame, text="SAVE BOTH").pack(side=TOP, padx=10, pady=10)
         # TODO: reset both
         Button(master=frame, text="RESET BOTH").pack(side=TOP, padx=10, pady=10)
+        # TODO: load both
+        Button(master=frame, text="LOAD BOTH").pack(side=TOP, padx=10, pady=10)
+        # TODO: stop both
+        Button(master=frame, text="STOP BOTH").pack(side=TOP, padx=10, pady=10)
         # TODO: start both
         Button(master=frame, text="START BOTH").pack(side=TOP, padx=10, pady=10)
         Button(master=frame, text="QUIT", command=main.quit).pack(side=TOP, padx=10, pady=10)
@@ -397,16 +402,11 @@ class Homemiddlepage:
 
 
 class HomePage:
-    def __init__(self, root,niftystart,niftystop,bankniftystart,bankniftystop):
-        self.niftystart = niftystart
-        self.niftystop = niftystop
-        self.bankniftystart =bankniftystart
-        self.bankniftystop=bankniftystop
+    def __init__(self, root):
         self.__root = root
         Homepage = Frame(root, width=1071, height=483)
-        nifty = Optionchaindataset(root=Homepage, index=Const.NIFTY, packside=LEFT,start=niftystart,stop=niftystop)
-        banknifty = Optionchaindataset(root=Homepage, index=Const.BANK_NIFTY, packside=RIGHT,start=bankniftystart,
-                                       stop=bankniftystop)
+        nifty = Optionchaindataset(root=Homepage, index=Const.NIFTY, packside=LEFT)
+        banknifty = Optionchaindataset(root=Homepage, index=Const.BANK_NIFTY, packside=RIGHT)
         Homemiddlepage(root=Homepage, t=banknifty)
         Pack(Homepage)
 
@@ -420,11 +420,7 @@ bankniftypageobject = optionindex(root=BankNiftyPage, index=Const.BANK_NIFTY)
 Pack(BankNiftyPage)
 
 Homepage = Frame(my_notebook, width=1071, height=483)
-Homepageobject = HomePage(root=Homepage,
-                          niftystart=niftypageobject.Extras.startpressed,
-                          niftystop=niftypageobject.Extras.stoppressed,
-                          bankniftystart=bankniftypageobject.Extras.startpressed,
-                          bankniftystop=bankniftypageobject.Extras.stoppressed)
+Homepageobject = HomePage(root=Homepage)
 Pack(Homepage)
 
 
