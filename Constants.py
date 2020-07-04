@@ -28,45 +28,11 @@ class Constants:
         return str(Constants.REFRESH_TIME[index] * i) + " min"
 
     @staticmethod
-    def initialise(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
-                   puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down, refreshtime,testing):
-        l = [calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3]
-        if len(l) != len(list(set(l))):
-            print("Calls columns are crashing")
-            exit(0)
-        for i in l:
-            if i in 'ABCDEFF':
-                Constants.CALLS_LTP = calls_ltp
-                Constants.CALLS_OI = calls_oi
-                Constants.CALLS_CHANGE_IN_OI = calls_changeinoi
-                Constants.CALLS_TREND1 = calls_trend1
-                Constants.CALLS_TREND2 = calls_trend2
-                Constants.CALLS_TREND3 = calls_trend3
-            else:
-                print("calls crossed it bounds")
-        l = [puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3]
-        if len(l) != len(list(set(l))):
-            print("Puts columns are crashing")
-            exit(0)
-
-        for i in l:
-            if i in 'HIJKLM':
-                Constants.PUTS_LTP = puts_ltp
-                Constants.PUTS_OI = puts_oi
-                Constants.PUTS_CHANGE_IN_OI = puts_changeinoi
-                Constants.PUTS_TREND1 = puts_trend1
-                Constants.PUTS_TREND2 = puts_trend2
-                Constants.PUTS_TREND3 = puts_trend3
-            else:
-                print("puts crossed it bounds")
-                exit(0)
-
-        Constants.UP = up
-        Constants.DOWN = down
-        if refreshtime*60 <= 180 and not testing:
-            print("average refresh time cannot be less than 3 minutes")
-            exit(0)
-        Constants.REFRESH_TIME = refreshtime
+    # TODO: CHECK COLUMNS
+    def checkvalues(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
+                   puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down,
+                   refreshtime,testing,calls,strikeprice,puts,index):
+        pass
 
 
     strikesdiff = [50, 100]
@@ -81,15 +47,15 @@ class Constants:
     PUTS_POS = [2,2]
 
     CALLS_OI = [0,0]
-    CALLS_CHANGE_IN_OI = [2,2]
-    CALLS_LTP = [1,1]
-    CALLS_TREND1 = [3,3]
-    CALLS_TREND2 = [4,4]
-    CALLS_TREND3 = [5,5]
+    CALLS_CHANGE_IN_OI = [1,1]
+    CALLS_LTP = [5,5]
+    CALLS_TREND1 = [2,2]
+    CALLS_TREND2 = [3,3]
+    CALLS_TREND3 = [4,4]
 
-    PUTS_OI = [0,0]
+    PUTS_OI = [1,1]
     PUTS_CHANGE_IN_OI = [2,2]
-    PUTS_LTP = [1,1]
+    PUTS_LTP = [0,0]
     PUTS_TREND1 = [3,3]
     PUTS_TREND2 = [4,4]
     PUTS_TREND3 = [5,5]

@@ -1,12 +1,12 @@
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
 
-def getsizeandpos(height,width):
+def getsizeandpos(height, width):
     screenheight = main.winfo_screenheight()
     screenwidth = main.winfo_screenwidth()
-    posy = int(screenheight/2 - height/2)
-    posx = int(screenwidth/2 - width/2)
-    s = str(width)+"x"+str(height)+"+"+str(posx)+"+"+str(posy)
+    posy = int(screenheight / 2 - height / 2)
+    posx = int(screenwidth / 2 - width / 2)
+    s = str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
     print(s)
     return s
 
@@ -29,18 +29,18 @@ class optionscontroller:
         self.Timer = Label(root, text="Press start", width=15)
         self.startbut = Button(root, text="START", state=NORMAL, command=self.startpressed)
         self.stopbut = Button(root, text="STOP", state=DISABLED, command=self.stoppressed)
-        self.errorlabel = Label(root,text="")
+        self.errorlabel = Label(root, text="")
         self.Timer.pack(sid=LEFT, padx=10)
         self.startbut.pack(side=LEFT, padx=10)
         self.stopbut.pack(side=LEFT, padx=10)
-        self.errorlabel.pack(side=LEFT,padx=10)
+        self.errorlabel.pack(side=LEFT, padx=10)
 
     # TODO: INDEX STOP PRESSED
     def stoppressed(self):
         self.stopbut.config(state=DISABLED)
         self.startbut.config(state=NORMAL)
         self.stopped = True
-        my_notebook.tab(self.index+1,text=getname(index=self.index))
+        my_notebook.tab(self.index + 1, text=getname(index=self.index))
 
     # TODO: INDEX STAT PRESSED
     def startpressed(self):
@@ -49,7 +49,7 @@ class optionscontroller:
         self.starting = True
         self.stopped = False
         self.datareset()
-        self.timer=0
+        self.timer = 0
         self.__start()
 
     def __start(self):
@@ -97,17 +97,19 @@ class optionindex:
         self.Strike = LabelFrame(self.Strikeprice, text=Const.STRIKE_PRICE)
         self.Strike.grid(row=0, column=0)
 
-
-        self.setcolumnpositions()
-        self.loadrows()
+        self.settablestructure()
         Table.pack()
         # TODO: Controller
         self.Controller = optionscontroller(root=self.root, update=self.updatedata, index=index,
-                                       datareset=self.request.reset_data)
+                                            datareset=self.request.reset_data)
         self.Controller.stopped = False
-        self.frames[Const.ERROR]=self.Controller.errorlabel
+        self.frames[Const.ERROR] = self.Controller.errorlabel
 
-    def setcolumnpositions(self):
+    def settablestructure(self):
+        self.__setcolumnpositions()
+        self.__loadrows()
+
+    def __setcolumnpositions(self):
         self.CALLS.grid(row=1, column=Const.CALLS_POS[self.index])
         self.Strikeprice.grid(row=1, column=Const.STRIKEPRICE_POS[self.index])
         self.PUTS.grid(row=1, column=Const.PUTS_POS[self.index])
@@ -126,16 +128,16 @@ class optionindex:
         self.PUTSTREND2.grid(row=0, column=Const.PUTS_TREND2[self.index])
         self.PUTSTREND3.grid(row=0, column=Const.PUTS_TREND3[self.index])
 
-    def loadrows(self):
+    def __loadrows(self):
         presentcount = len(self.frames[Const.BODY])
         requestedcount = self.up + self.down + 1
-        requiredrows = requestedcount-presentcount
+        requiredrows = requestedcount - presentcount
         if requiredrows < 0:
             self.__removerows(rows=abs(requiredrows))
         elif requiredrows > 0:
             self.__addrows(rows=abs(requiredrows))
 
-    def __addrows(self,rows):
+    def __addrows(self, rows):
         labelwidth = 10
         for _ in range(rows):
             t = {Const.STRIKE_PRICE: Label(self.Strike, text="-", width=labelwidth, height=1),
@@ -159,7 +161,7 @@ class optionindex:
                         t[i][j].pack(side=TOP)
             self.frames[Const.BODY].append(t)
 
-    def __removerows(self,rows):
+    def __removerows(self, rows):
         for _ in range(rows):
             t = self.frames[Const.BODY][-1]
             for i in t:
@@ -171,8 +173,6 @@ class optionindex:
                         t[i][j].pack_forget()
                         t[i][j].destroy()
             self.frames[Const.BODY].pop(-1)
-
-
 
     def __setheading(self, Time, date, price, marketstatus):
         optionname = getname(index=self.index)
@@ -201,9 +201,9 @@ class optionindex:
         data = self.Dataformatter.update_data(self.request.request_data)
         if data[Const.ERROR] != None:
             if data[Const.ERROR] == Const.NO_INTERNET:
-                self.frames[Const.ERROR].config(text="NO INTERNET, CHECK YOUR CONNECTION",width = 50)
+                self.frames[Const.ERROR].config(text="NO INTERNET, CHECK YOUR CONNECTION", width=50)
             else:
-                self.frames[Const.ERROR].config(text="Site is Not Working",width = 30)
+                self.frames[Const.ERROR].config(text="Site is Not Working", width=30)
             return
         else:
             self.frames[Const.ERROR].config(text="", width=0)
@@ -211,9 +211,9 @@ class optionindex:
         # if data[Const.MARKET_STATUS] == False:
         #     self.Extras.stopped = True
         self.__setheading(price=data[Const.PRICE],
-                        Time=data[Const.TIME],
-                        date=data[Const.DATE],
-                        marketstatus=data[Const.MARKET_STATUS])
+                          Time=data[Const.TIME],
+                          date=data[Const.DATE],
+                          marketstatus=data[Const.MARKET_STATUS])
         strikeprices = data[Const.STRIKES_LIST]
         for i in range(len(strikeprices)):
             Data = data[strikeprices[i]]
@@ -242,17 +242,17 @@ class Optionchaindataset:
     def __setuplowerframe(self, root):
         lowerpady = 40
         lowerpadx = 1
-        self.resetbut = Button(master=root, text="RESET",command=self.resetpressed)
+        self.resetbut = Button(master=root, text="RESET", command=self.resetpressed)
         self.resetbut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
-        self.savebut = Button(master=root, text="SAVE",command = self.savepressed)
+        self.savebut = Button(master=root, text="SAVE", command=self.savepressed)
         self.savebut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
-        self.restorebut = Button(master=root, text="RESTORE",command = self.restorepressed)
+        self.restorebut = Button(master=root, text="RESTORE", command=self.restorepressed)
         self.restorebut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
-        self.loadbut = Button(master=root, text="LOAD",command = self.loadpressed)
+        self.loadbut = Button(master=root, text="LOAD", command=self.loadpressed)
         self.loadbut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
-        self.startbut = Button(master=root, text="START", command=self.startpressed,state=NORMAL)
+        self.startbut = Button(master=root, text="START", command=self.startpressed, state=NORMAL)
         self.startbut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
-        self.stopbut = Button(master=root, text="STOP", command=self.stoppressed,state=DISABLED)
+        self.stopbut = Button(master=root, text="STOP", command=self.stoppressed, state=DISABLED)
         self.stopbut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
 
     # TODO: RESET SINGLE
@@ -269,20 +269,47 @@ class Optionchaindataset:
 
     # TODO: LOAD SINGLE
     def loadpressed(self):
-        pass
+        t = self.__loadvalues()
+        if t == "":
+            # TODO :NO ERROR LOADING
+            pass
+        else:
+            # TODO: ERROR IN LOADING
+            print("error has been formed:", t)
+
+    def __loadvalues(self):
+        return Const.checkvalues(calls=self.callsentry.get(),
+                                 calls_oi=self.callsentry.get(),
+                                 calls_ltp=self.callsltpentry.get(),
+                                 calls_changeinoi=self.callscoientry.get(),
+                                 calls_trend1=self.callstrend1entry.get(),
+                                 calls_trend2=self.callstrend2entry.get(),
+                                 calls_trend3=self.callstrend3entry.get(),
+                                 strikeprice=self.strikepriceentry.get(),
+                                 puts=self.putsentry.get(),
+                                 puts_oi=self.putsoientry.get(),
+                                 puts_ltp=self.putsltpentry.get(),
+                                 puts_changeinoi=self.putscoientry.get(),
+                                 puts_trend1=self.putstrend1entry.get(),
+                                 puts_trend2=self.putstrend2entry.get(),
+                                 puts_trend3=self.putstrend3entry.get(),
+                                 refreshtime=self.timeframeentry.get(),
+                                 testing=False,
+                                 index=self.__index,
+                                 up=self.upvaluesentry.get(),
+                                 down=self.downvaluesentry.get())
 
     # TODO: START SINGLE
     def startpressed(self):
         self.startbut.config(state=DISABLED)
         self.stopbut.config(state=NORMAL)
-        print("screenheight:",main.winfo_screenheight(),main.winfo_screenwidth())
+        print("screenheight:", main.winfo_screenheight(), main.winfo_screenwidth())
         # TODO: changing the geometry
         # main.geometry("1253x600+100+100")
 
     def stoppressed(self):
         self.startbut.config(state=NORMAL)
         self.stopbut.config(state=DISABLED)
-
 
     def __setupupperframe(self, root):
         padyvalue = 7
@@ -327,7 +354,7 @@ class Optionchaindataset:
         downvalueslabel = Label(master=root, text="DOWN VALUES")
         self.downvaluesentry = Entry(master=root, width=entrywidth)
 
-        self.errorLabel = Label(master=root,text="")
+        self.errorLabel = Label(master=root, text="")
 
         timeframelabel.grid(row=0, column=0, pady=padyvalue)
         callslabel.grid(row=1, column=0, pady=padyvalue)
@@ -366,7 +393,7 @@ class Optionchaindataset:
         self.putstrend3entry.grid(row=7, column=5, pady=padyvalue)
         self.upvaluesentry.grid(row=8, column=1, pady=padyvalue)
         self.downvaluesentry.grid(row=8, column=4, pady=padyvalue)
-        self.errorLabel.grid(row=9,column=0,columnspan=6,pady=padyvalue)
+        self.errorLabel.grid(row=9, column=0, columnspan=6, pady=padyvalue)
 
 
 class Homemiddlepage:
@@ -374,16 +401,17 @@ class Homemiddlepage:
         self.__banknifty = banknifty
         self.__nifty = nifty
         self.__enabled = True
-        padx=10
-        pady=10
+        padx = 10
+        pady = 10
         frame = Frame(root)
-        Checkbutton(master=frame, text="Same as Nifty", command=self.sameasniftypressed).pack(side=TOP, padx=padx, pady=pady)
+        Checkbutton(master=frame, text="Same as Nifty", command=self.sameasniftypressed).pack(side=TOP, padx=padx,
+                                                                                              pady=pady)
         Button(master=frame, text="RESET BOTH", command=self.resetpressed).pack(side=TOP, padx=padx, pady=pady)
-        Button(master=frame, text="SAVE BOTH",command=self.savepressed).pack(side=TOP, padx=padx, pady=pady)
+        Button(master=frame, text="SAVE BOTH", command=self.savepressed).pack(side=TOP, padx=padx, pady=pady)
         Button(master=frame, text="RESTORE BOTH", command=self.restorepressed).pack(side=TOP, padx=padx, pady=pady)
-        Button(master=frame, text="LOAD BOTH",command=self.loadpressed).pack(side=TOP, padx=padx, pady=pady)
-        Button(master=frame, text="STOP BOTH",command=self.stoppressed).pack(side=TOP, padx=padx, pady=pady)
-        Button(master=frame, text="START BOTH",command=self.startpressed).pack(side=TOP, padx=padx, pady=pady)
+        Button(master=frame, text="LOAD BOTH", command=self.loadpressed).pack(side=TOP, padx=padx, pady=pady)
+        Button(master=frame, text="STOP BOTH", command=self.stoppressed).pack(side=TOP, padx=padx, pady=pady)
+        Button(master=frame, text="START BOTH", command=self.startpressed).pack(side=TOP, padx=padx, pady=pady)
         Button(master=frame, text="QUIT", command=main.quit).pack(side=TOP, padx=padx, pady=pady)
         frame.pack(side=LEFT, expand=1, fill="both")
 
@@ -428,8 +456,9 @@ class HomePage:
         Homepage = Frame(root, width=1071, height=483)
         nifty = Optionchaindataset(root=Homepage, index=Const.NIFTY, packside=LEFT)
         banknifty = Optionchaindataset(root=Homepage, index=Const.BANK_NIFTY, packside=RIGHT)
-        Homemiddlepage(root=Homepage, banknifty=banknifty,nifty=nifty)
+        Homemiddlepage(root=Homepage, banknifty=banknifty, nifty=nifty)
         Homepage.pack(fill="both", expand=1)
+
 
 if __name__ == "__main__":
     import time
@@ -440,7 +469,7 @@ if __name__ == "__main__":
     from ExcelData import DataFormatter
     from Constants import Constants as Const
 
-    Const.REFRESH_TIME = [5, 5]
+    Const.REFRESH_TIME = [5, 4]
     Const.TESTING = False
 
     main = Tk(className="Option-Chain Data")
