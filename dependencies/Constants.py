@@ -86,6 +86,7 @@ class Constants:
     TRENDS3 = 'trends3'
     TREND_CHANGE_OF_OI: str = "trendschangeOI"
     TEXT = 'text'
+    VALUE = 'value'
     CELL_FILL_COLOR = 'fillcolor'
     FONT_STYLE = 'fontstyle'
     FONT_COLOR = 'fontcolor'

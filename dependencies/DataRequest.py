@@ -1,5 +1,5 @@
-from Constants import Constants as Const
-import Sampledata, os
+from dependencies.Constants import Constants as Const
+from dependencies import Sampledata
 import requests
 
 def calculate_price(n,index):

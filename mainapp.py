@@ -465,15 +465,18 @@ if __name__ == "__main__":
     from tkinter import *
     from tkinter import font, ttk
     import os, platform
-    from DataRequest import DataRequest
-    from ExcelData import DataFormatter
-    from Constants import Constants as Const
+    from dependencies.DataRequest import DataRequest
+    from dependencies.DataFormatter import DataFormatter
+    from dependencies.Constants import Constants as Const
 
     Const.REFRESH_TIME = [5, 4]
     Const.TESTING = False
 
     main = Tk(className="Option-Chain Data")
-    if platform.system() == "Windows": main.wm_iconbitmap(os.getcwd() + "/logo.ico")
+    try:
+        main.iconbitmap(os.getcwd() + "dependencies/logo.ico")
+    except:
+        pass # do nothing with logo
     main.geometry(getsizeandpos(width=1240, height=550))
     my_notebook = ttk.Notebook(main)
 
