@@ -6,9 +6,8 @@ def getsizeandpos(height, width):
     screenwidth = main.winfo_screenwidth()
     posy = int(screenheight / 2 - height / 2)
     posx = int(screenwidth / 2 - width / 2)
-    s = str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
-    print(s)
-    return s
+    return str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
+
 
 
 class optionscontroller:
@@ -230,7 +229,7 @@ class optionindex:
         if data[Const.ERROR] != None:
             if data[Const.ERROR] == Const.NO_INTERNET:
                 self.__frames[Const.ERROR].config(text="NO INTERNET, CHECK YOUR CONNECTION", width=50)
-                self.__homepageerrorlabel.config(text="NO INTERNET, CHECK YOUR CONNECTION")
+                #self.__homepageerrorlabel.config(text="NO INTERNET, CHECK YOUR CONNECTION")
             else:
                 self.__frames[Const.ERROR].config(text="Site is Not Working", width=30)
                 self.__homepageerrorlabel.config(text="Site is Not Working")
@@ -251,6 +250,7 @@ class optionindex:
             self.__setrowvalue(data=Data[Const.PUTS], frame=self.__frames[Const.BODY][i][Const.PUTS])
 
         if not data[Const.MARKET_STATUS]:
+            self.__homepageerrorlabel.config(text="market closed")
             self.Controller.stoppressed()
 
 
@@ -381,7 +381,6 @@ class Optionchaindataset:
         Const.resetvalues(index=self.__index, mode="reset")
         self.__setvalues()
 
-    # TODO: SAVE SINGLE
     def savepressed(self):
         self.__errorLabel.config(text=self.__checkvalues(mode="saving"))
 
@@ -540,6 +539,8 @@ class Homemiddlepage:
         frame.pack(side=LEFT, expand=1, fill="both")
 
     def Disableall(self):
+        self.__nifty.Disableall()
+        self.__banknifty.Disableall()
         self.__stopbut.config(state=NORMAL)
         self.__startbut.config(state=DISABLED)
         self.__resetbut.config(state=DISABLED)
@@ -548,6 +549,8 @@ class Homemiddlepage:
         self.__savebut.config(state=DISABLED)
 
     def Enableall(self):
+        self.__nifty.Enableall()
+        self.__banknifty.Enableall()
         self.__stopbut.config(state=DISABLED)
         self.__startbut.config(state=NORMAL)
         self.__resetbut.config(state=NORMAL)
@@ -582,18 +585,21 @@ class Homemiddlepage:
         self.__banknifty.restorepressed()
 
     def startpressed(self):
-        self.Disableall()
-        if not self.__niftystarted: self.__nifty.startpressed()
-        if not self.__bankniftystarted: self.__banknifty.startpressed()
-        self.__niftystarted = True
-        self.__bankniftystarted = True
+        if not self.__niftystarted:
+            self.__nifty.startpressed()
+            self.__niftystarted = True
+        if not self.__bankniftystarted:
+            self.__banknifty.startpressed()
+            self.__bankniftystarted = True
 
     def stoppressed(self):
         self.Enableall()
-        if self.__niftystarted: self.__nifty.stoppressed()
-        if self.__bankniftystarted: self.__banknifty.stoppressed()
-        self.__niftystarted = False
-        self.__bankniftystarted = False
+        if self.__niftystarted:
+            self.__nifty.stoppressed()
+            self.__niftystarted = False
+        if self.__bankniftystarted:
+            self.__banknifty.stoppressed()
+            self.__bankniftystarted = False
 
     def loadpressed(self):
         self.__nifty.loadpressed()
@@ -644,10 +650,10 @@ if __name__ == "__main__":
         main.iconbitmap(os.getcwd() + "dependencies/logo.ico")
     except:
         pass  # do nothing with logo
-    main.geometry(getsizeandpos(width=1240, height=550))
+    main.geometry(getsizeandpos(width=Const.WINDOW_WIDTH, height=Const.WINDOW_HEIGHT))
     my_notebook = ttk.Notebook(main)
 
-    NiftyPage = Frame(my_notebook, width=1071, height=483)
+    NiftyPage = Frame(my_notebook, width=1, height=483)
     niftypageobject = optionindex(root=NiftyPage, index=Const.NIFTY)
     NiftyPage.pack(fill="both", expand=1)
 

@@ -2,11 +2,6 @@ from typing import Tuple, Dict
 import os,platform,json
 
 
-# if platform.system() != 'Windows':
-#     print("This program cannot be rune other than windows")
-#     exit(0)
-
-# rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
 columnsvaluefilepath=""
 if(platform=="Windows"):
     columnsvaluefilepath = os.getcwd()+"\\dependencies\\columnvalues.json"
@@ -171,6 +166,9 @@ class Constants:
     INTIALIZING = False
     WELCOME_TEXT = ""
 
+    WINDOW_HEIGHT = 550
+    WINDOW_WIDTH = 1300
+
     UP_VALUE = [8, 8]
     DOWN_VALUE = [8, 8]
 
@@ -211,7 +209,7 @@ class Constants:
     PUTS: str = 'PE'
     INDEX: str = "index"
     OI: str = "OI"
-    CHANGE_IN_OI: str = "CHANGEINOI"
+    CHANGE_IN_OI: str = "CHANGE IN OI"
     LTP: str = "LTP"
     TIME: str = "TIME"
     DATE: str = "DATE"
@@ -219,9 +217,9 @@ class Constants:
     TURNOVER_PRICE: str = "turnoverprice"
     MARKET_STATUS: str = "marketstatus"
     TRENDS: str = "trends"
-    TRENDS1 = 'trends1'
-    TRENDS2 = 'trends2'
-    TRENDS3 = 'trends3'
+    TRENDS1 = 'TREND 1'
+    TRENDS2 = 'TREND 2'
+    TRENDS3 = 'TREND 3'
     TREND_CHANGE_OF_OI: str = "trendschangeOI"
     TEXT = 'text'
     VALUE = 'value'
