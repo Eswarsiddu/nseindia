@@ -1,5 +1,5 @@
 from typing import Tuple, Dict
-import os, platform
+import os,platform,json
 
 
 # if platform.system() != 'Windows':
@@ -7,6 +7,11 @@ import os, platform
 #     exit(0)
 
 # rgbToInt = lambda r, g, b: (r + (g * 256) + (b * 256 * 256))
+columnsvaluefilepath=""
+if(platform=="Windows"):
+    columnsvaluefilepath = os.getcwd()+"\\dependencies\\columnvalues.json"
+else:
+    columnsvaluefilepath = os.getcwd()+"/dependencies/columnvalues.json"
 
 def rgbToInt(r, g, b):
     return '#%02x%02x%02x' % (r, g, b)
@@ -15,11 +20,6 @@ def rgbToInt(r, g, b):
 class Constants:
     URLS: Tuple[str, str] = ('https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY',
                              'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY')
-    try:
-        import xlwings
-    except:
-        os.system("python -m pip install xlwings")
-
     try:
         import requests
     except:
@@ -32,7 +32,7 @@ class Constants:
     @staticmethod
     def checkvalues(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
                     puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down,
-                    refreshtime, testing, calls, strikeprice, puts, index):
+                    refreshtime, calls, strikeprice, puts, index,mode):
         t = ([calls, puts, strikeprice],
              [calls_oi, calls_ltp, calls_changeinoi, calls_trend1, calls_trend2, calls_trend3],
              [puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3])
@@ -57,10 +57,27 @@ class Constants:
         if int(down) <= 0:
             return "down value should be greather then 0"
 
-        if testing != True:
-            if int(refreshtime) <= 3:
-                return "Time frame must be greater than 3 minutes"
+        if int(refreshtime) <= 3:
+            return "Time frame must be greater than 3 minutes"
 
+        if mode=="loading":
+            Constants.loadvalues(index=index, refreshtime=refreshtime, strikeprice=strikeprice, calls=calls,
+                                 calls_oi=calls_oi, calls_ltp=calls_ltp, calls_changeinoi=calls_changeinoi,
+                                 calls_trend1=calls_trend1, calls_trend2=calls_trend2, calls_trend3=calls_trend3,
+                                 puts=puts, puts_oi=puts_oi, puts_changeinoi=puts_changeinoi, puts_ltp=puts_ltp,
+                                 puts_trend1=puts_trend1, puts_trend2=puts_trend2, puts_trend3=puts_trend3, up=up,
+                                 down=down)
+        else:
+            Constants.savevalues(index=index, refreshtime=refreshtime, strikeprice=strikeprice, calls=calls,
+                                 calls_oi=calls_oi, calls_ltp=calls_ltp, calls_changeinoi=calls_changeinoi,
+                                 calls_trend1=calls_trend1, calls_trend2=calls_trend2, calls_trend3=calls_trend3,
+                                 puts=puts, puts_oi=puts_oi, puts_changeinoi=puts_changeinoi, puts_ltp=puts_ltp,
+                                 puts_trend1=puts_trend1, puts_trend2=puts_trend2, puts_trend3=puts_trend3, up=up,
+                                 down=down)
+        return ""
+
+    @staticmethod
+    def loadvalues(index,refreshtime,strikeprice,calls,calls_oi,calls_ltp,calls_changeinoi,calls_trend1,calls_trend2,calls_trend3,puts,puts_oi,puts_ltp,puts_changeinoi,puts_trend1,puts_trend2,puts_trend3,up,down):
         Constants.REFRESH_TIME[index] = int(refreshtime)
         Constants.STRIKEPRICE_POS[index] = int(strikeprice)
         Constants.CALLS_POS[index] = int(calls)
@@ -77,14 +94,85 @@ class Constants:
         Constants.PUTS_TREND1[index] = int(puts_trend1)
         Constants.PUTS_TREND2[index] = int(puts_trend2)
         Constants.PUTS_TREND3[index] = int(puts_trend3)
-        return ""
+        Constants.UP_VALUE[index] = int(up)
+        Constants.DOWN_VALUE[index] = int(down)
+
+    @staticmethod
+    def setvalues(index,data):
+        Constants.REFRESH_TIME[index] = data[Constants.REFRESTIME][str(index)]
+        Constants.UP_VALUE[index] = data[Constants.UP][str(index)]
+        Constants.DOWN_VALUE[index] = data[Constants.DOWN][str(index)]
+        Constants.STRIKEPRICE_POS[index]=data[Constants.STRIKE_PRICE][str(index)]
+        calls = data[Constants.CALLS]
+        Constants.CALLS_POS[index] = calls[Constants.CALLS][str(index)]
+        Constants.CALLS_OI[index] = calls[Constants.OI][str(index)]
+        Constants.CALLS_LTP[index] = calls[Constants.LTP][str(index)]
+        Constants.CALLS_CHANGE_IN_OI[index] = calls[Constants.CHANGE_IN_OI][str(index)]
+        Constants.CALLS_TREND1[index] = calls[Constants.TRENDS1][str(index)]
+        Constants.CALLS_TREND2[index] = calls[Constants.TRENDS2][str(index)]
+        Constants.CALLS_TREND3[index] = calls[Constants.TRENDS3][str(index)]
+
+        puts = data[Constants.PUTS]
+        Constants.PUTS_POS[index] = puts[Constants.PUTS][str(index)]
+        Constants.PUTS_OI[index] = puts[Constants.OI][str(index)]
+        Constants.PUTS_LTP[index] = puts[Constants.LTP][str(index)]
+        Constants.PUTS_CHANGE_IN_OI[index] = puts[Constants.CHANGE_IN_OI][str(index)]
+        Constants.PUTS_TREND1[index] = puts[Constants.TRENDS1][str(index)]
+        Constants.PUTS_TREND2[index] = puts[Constants.TRENDS2][str(index)]
+        Constants.PUTS_TREND3[index] = puts[Constants.TRENDS3][str(index)]
+
+
+
+    @staticmethod
+    def resetvalues(index,mode):
+        f = open(columnsvaluefilepath,"r")
+        data = json.load(f)
+        if mode=="reset":
+            Constants.setvalues(index=index, data=data[Constants.DEFAULT])
+        else:
+            Constants.setvalues(index=index, data=data[Constants.SAVED_VALUES])
+        f.close()
+
+
+    @staticmethod
+    def savevalues(index, refreshtime, strikeprice, calls, calls_oi, calls_ltp, calls_changeinoi, calls_trend1, calls_trend2, calls_trend3, puts, puts_oi, puts_ltp, puts_changeinoi, puts_trend1, puts_trend2, puts_trend3, up, down):
+        f = open(columnsvaluefilepath,"r+")
+        da = json.load(f)
+        data = da[Constants.SAVED_VALUES]
+        data[Constants.REFRESTIME][str(index)] = int(refreshtime)
+        data[Constants.STRIKE_PRICE][str(index)] = int(strikeprice)
+        data[Constants.UP][str(index)] = int(up)
+        data[Constants.DOWN][str(index)] = int(down)
+
+        data[Constants.CALLS][Constants.CALLS][str(index)] = int(calls)
+        data[Constants.CALLS][Constants.OI][str(index)] = int(calls_oi)
+        data[Constants.CALLS][Constants.LTP][str(index)] = int(calls_ltp)
+        data[Constants.CALLS][Constants.CHANGE_IN_OI][str(index)] = int(calls_changeinoi)
+        data[Constants.CALLS][Constants.TRENDS1][str(index)] = int(calls_trend1)
+        data[Constants.CALLS][Constants.TRENDS2][str(index)] = int(calls_trend2)
+        data[Constants.CALLS][Constants.TRENDS3][str(index)] = int(calls_trend3)
+
+        data[Constants.PUTS][Constants.PUTS][str(index)] = int(puts)
+        data[Constants.PUTS][Constants.OI][str(index)] = int(puts_oi)
+        data[Constants.PUTS][Constants.LTP][str(index)] = int(puts_ltp)
+        data[Constants.PUTS][Constants.CHANGE_IN_OI][str(index)] = int(puts_changeinoi)
+        data[Constants.PUTS][Constants.TRENDS1][str(index)] = int(puts_trend1)
+        data[Constants.PUTS][Constants.TRENDS2][str(index)] = int(puts_trend2)
+        data[Constants.PUTS][Constants.TRENDS3][str(index)] = int(puts_trend3)
+        da[Constants.SAVED_VALUES] = data
+        f.seek(0)
+        json.dump(da,f)
+        f.truncate()
+        f.close()
+
+
 
     strikesdiff = [50, 100]
     INTIALIZING = False
     WELCOME_TEXT = ""
 
-    UP = [8, 8]
-    DOWN = [8, 8]
+    UP_VALUE = [8, 8]
+    DOWN_VALUE = [8, 8]
 
     CALLS_POS = [1, 1]
     STRIKEPRICE_POS = [2, 2]
@@ -106,10 +194,16 @@ class Constants:
 
     REFRESH_TIME = [5, 5]
 
+    REFRESTIME = "refreshtime"
+    UP = "up"
+    DOWN = "down"
+
     NIFTY_NAME = 'NIFTY'
     BANK_NIFTY_NAME = 'BANK NIFTY'
 
     STRIKES_LIST: str = "strikeprices"
+    DEFAULT: str ="default"
+    SAVED_VALUES: str = "savedvalues"
     NIFTY: int = 0
     BANK_NIFTY: int = 1
     STRIKE_PRICE: str = 'STRIKE PRICE'

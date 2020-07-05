@@ -159,8 +159,8 @@ def getoptions(data, strikeprice, turnoverprice, optiontype, maxvalues):
 
 
 def analyse_data(data, index):
-    up = Const.UP[index]
-    down = Const.DOWN[index]
+    up = Const.UP_VALUE[index]
+    down = Const.DOWN_VALUE[index]
     options = {}
     if (data[Const.ERROR] != None):
         options[Const.ERROR] = data[Const.ERROR]

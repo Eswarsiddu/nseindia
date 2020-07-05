@@ -158,7 +158,7 @@ class optionindex:
         # print("screenheight:", main.winfo_screenheight(), main.winfo_screenwidth())
         # main.geometry("1253x600+100+100")
         presentcount = len(self.__frames[Const.BODY])
-        requestedcount = Const.UP[self.__index] + Const.DOWN[self.__index] + 1
+        requestedcount = Const.UP_VALUE[self.__index] + Const.DOWN_VALUE[self.__index] + 1
         requiredrows = requestedcount - presentcount
         if requiredrows < 0:
             self.__removerows(rows=abs(requiredrows))
@@ -323,6 +323,25 @@ class Optionchaindataset:
         self.stopbut.config(state=DISABLED)
 
     def __setvalues(self):
+        self.__timeframeentry.delete(0, END)
+        self.__callsentry.delete(0, END)
+        self.__putsentry.delete(0, END)
+        self.__strikepriceentry.delete(0, END)
+        self.__callsoientry.delete(0, END)
+        self.__callscoientry.delete(0, END)
+        self.__callsltpentry.delete(0, END)
+        self.__callstrend1entry.delete(0, END)
+        self.__callstrend2entry.delete(0, END)
+        self.__callstrend3entry.delete(0, END)
+        self.__putsoientry.delete(0, END)
+        self.__putscoientry.delete(0, END)
+        self.__putsltpentry.delete(0, END)
+        self.__putstrend1entry.delete(0, END)
+        self.__putstrend2entry.delete(0, END)
+        self.__putstrend3entry.delete(0, END)
+        self.__upvaluesentry.delete(0, END)
+        self.__downvaluesentry.delete(0, END)
+
         self.__timeframeentry.insert(0, Const.REFRESH_TIME[self.__index])
         self.__callsentry.insert(0, Const.CALLS_POS[self.__index])
         self.__putsentry.insert(0, Const.PUTS_POS[self.__index])
@@ -339,8 +358,8 @@ class Optionchaindataset:
         self.__putstrend1entry.insert(0, Const.PUTS_TREND1[self.__index])
         self.__putstrend2entry.insert(0, Const.PUTS_TREND2[self.__index])
         self.__putstrend3entry.insert(0, Const.PUTS_TREND3[self.__index])
-        self.__upvaluesentry.insert(0, Const.UP[self.__index])
-        self.__downvaluesentry.insert(0, Const.DOWN[self.__index])
+        self.__upvaluesentry.insert(0, Const.UP_VALUE[self.__index])
+        self.__downvaluesentry.insert(0, Const.DOWN_VALUE[self.__index])
 
     def __setuplowerframe(self, root):
         lowerpady = 40
@@ -358,25 +377,25 @@ class Optionchaindataset:
         self.stopbut = Button(master=root, text="STOP", command=self.stoppressed, state=DISABLED)
         self.stopbut.pack(side=LEFT, pady=lowerpady, padx=lowerpadx)
 
-    # TODO: RESET SINGLE
     def resetpressed(self):
-        pass
+        Const.resetvalues(index=self.__index, mode="reset")
+        self.__setvalues()
 
     # TODO: SAVE SINGLE
     def savepressed(self):
-        pass
+        self.__errorLabel.config(text=self.__checkvalues(mode="saving"))
 
-    # TODO: RESTORE SINGLE
     def restorepressed(self):
-        pass
+        Const.resetvalues(index=self.__index, mode="restore")
+        self.__setvalues()
 
     def loadpressed(self):
-        t = self.__loadvalues()
+        t = self.__checkvalues(mode="loading")
         self.__errorLabel.config(text=t)
         if t == "":
             self.__option.settablestructure()
 
-    def __loadvalues(self):
+    def __checkvalues(self, mode):
         return Const.checkvalues(calls=self.__callsentry.get(),
                                  calls_oi=self.__callsoientry.get(),
                                  calls_ltp=self.__callsltpentry.get(),
@@ -393,10 +412,11 @@ class Optionchaindataset:
                                  puts_trend2=self.__putstrend2entry.get(),
                                  puts_trend3=self.__putstrend3entry.get(),
                                  refreshtime=self.__timeframeentry.get(),
-                                 testing=False,
                                  index=self.__index,
                                  up=self.__upvaluesentry.get(),
-                                 down=self.__downvaluesentry.get())
+                                 down=self.__downvaluesentry.get(),
+                                 mode=mode)
+
 
     def startpressed(self):
         self.__option.Controller.startpressed()
@@ -426,7 +446,7 @@ class Optionchaindataset:
         self.__callstrend1entry = Entry(master=root, width=entrywidth)
         callstrend2label = Label(master=root, text=Const.TRENDS2)
         self.__callstrend2entry = Entry(master=root, width=entrywidth)
-        callstrend3label = Label(master=root, text=Const.TRENDS2)
+        callstrend3label = Label(master=root, text=Const.TRENDS3)
         self.__callstrend3entry = Entry(master=root, width=entrywidth)
 
         putsoilabel = Label(master=root, text=Const.OI)
