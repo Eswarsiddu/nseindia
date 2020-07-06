@@ -114,12 +114,12 @@ class optionindex:
         self.__Strike = LabelFrame(self.__Strikeprice, text=Const.STRIKE_PRICE)
         self.__Strike.grid(row=0, column=0)
 
-        self.settablestructure()
-        Table.pack()
         self.Controller = optionscontroller(root=self.__root, update=self.__updatedata, index=index,
                                             datareset=self.__request.reset_data)
         self.Controller.stopped = False
         self.__frames[Const.ERROR] = self.Controller.errorlabel
+        self.settablestructure()
+        Table.pack()
 
     def linkedtohomepage(self, startfun, stopfunc, homepageerrorlabel):
         self.__homepageerrorlabel = homepageerrorlabel
@@ -132,6 +132,18 @@ class optionindex:
     def settablestructure(self):
         self.__setcolumnpositions()
         self.__loadrows()
+        self.__settimeframe()
+
+    # TODI:TIMEFRAME RELOAD
+    def __settimeframe(self):
+        self.Controller.timeframe = Const.REFRESH_TIME[self.__index] * 60
+        self.__CALLSTREND1.config(text=Const.getTrends(i=1, index=self.__index))
+        self.__CALLSTREND2.config(text=Const.getTrends(i=2, index=self.__index))
+        self.__CALLSTREND3.config(text=Const.getTrends(i=3, index=self.__index))
+
+        self.__PUTSTREND1.config(text=Const.getTrends(i=1, index=self.__index))
+        self.__PUTSTREND2.config(text=Const.getTrends(i=2, index=self.__index))
+        self.__PUTSTREND3.config(text=Const.getTrends(i=3, index=self.__index))
 
     def __setcolumnpositions(self):
         self.__CALLS.grid(row=1, column=Const.CALLS_POS[self.__index] - 1)
@@ -539,8 +551,6 @@ class Homemiddlepage:
         frame.pack(side=LEFT, expand=1, fill="both")
 
     def Disableall(self):
-        self.__nifty.Disableall()
-        self.__banknifty.Disableall()
         self.__stopbut.config(state=NORMAL)
         self.__startbut.config(state=DISABLED)
         self.__resetbut.config(state=DISABLED)
@@ -549,8 +559,6 @@ class Homemiddlepage:
         self.__savebut.config(state=DISABLED)
 
     def Enableall(self):
-        self.__nifty.Enableall()
-        self.__banknifty.Enableall()
         self.__stopbut.config(state=DISABLED)
         self.__startbut.config(state=NORMAL)
         self.__resetbut.config(state=NORMAL)
@@ -561,8 +569,10 @@ class Homemiddlepage:
     def startfunc(self, index):
         if index == Const.NIFTY:
             self.__niftystarted = True
+            self.__nifty.Disableall()
         else:
             self.__bankniftystarted = True
+            self.__banknifty.Disableall()
 
         if self.__niftystarted and self.__bankniftystarted:
             self.Disableall()
@@ -572,8 +582,10 @@ class Homemiddlepage:
     def stopfunc(self, index):
         if index == Const.NIFTY:
             self.__niftystarted = False
+            self.__nifty.Enableall()
         else:
             self.__bankniftystarted = False
+            self.__banknifty.Enableall()
 
         if self.__niftystarted and self.__bankniftystarted:
             self.Disableall()

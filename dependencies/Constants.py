@@ -52,7 +52,7 @@ class Constants:
         if int(down) <= 0:
             return "down value should be greather then 0"
 
-        if int(refreshtime) <= 3:
+        if int(refreshtime) < 3:
             return "Time frame must be greater than 3 minutes"
 
         if mode=="loading":
