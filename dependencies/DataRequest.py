@@ -105,6 +105,8 @@ class DataRequest:
     def request_data(self):
         if Const.TESTING:
             Sampledata.testindex += 1
-            return Sampledata.testdata[Sampledata.testindex]
-
-        return get_options(options=self.Data, request=self.__url, index=self.__index)
+            data = Sampledata.niftydata[Sampledata.testindex]
+            return data
+        opt = get_options(options=self.Data, request=self.__url, index=self.__index)
+        print(opt)
+        return opt

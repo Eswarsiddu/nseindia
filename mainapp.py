@@ -1,5 +1,5 @@
 import threading
-
+c=0
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
 
@@ -85,9 +85,13 @@ class optionscontroller:
         self.__homepageerrorlabel = homepageerrorlabel
 
     def __start(self):
-        self.Timer.config(text=time.strftime("%H : %M: %S"))
+        global c
+        timeer = time.strftime("%H : %M: %S")
+        self.Timer.config(text=timeer)
         if self.stopped == False:
+            c+=1
             try:
+                self.Timer.config(text=(timeer+","+str(c)))
                 if self.updatethr.started == None:
                     self.updatethr.start()
                 elif self.updatethr.started == False:
