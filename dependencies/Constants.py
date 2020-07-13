@@ -21,8 +21,8 @@ class Constants:
         os.system("python -m pip install requests")
 
     @staticmethod
-    def getTrends(i, index):
-        return str(Constants.REFRESH_TIME[index] * i) + " min"
+    def getTrends(i):
+        return "TREND "+str(i)
 
     @staticmethod
     def checkvalues(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,

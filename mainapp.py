@@ -1,3 +1,5 @@
+import threading
+
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
 
@@ -8,7 +10,16 @@ def getsizeandpos(height, width):
     posx = int(screenwidth / 2 - width / 2)
     return str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
 
+class updatethread(threading.Thread):
+    def __init__(self, updatefunc):
+        super().__init__()
+        self.updatefunc = updatefunc
+        self.started=None
 
+    def run(self):
+        self.started=True
+        self.updatefunc()
+        self.started=False
 
 class optionscontroller:
     def __init__(self, root, update, index, datareset):
@@ -23,11 +34,15 @@ class optionscontroller:
         self.index = index
         self.__startfun = None
         self.__stopfun = None
-        self.timeframe = Const.REFRESH_TIME[index] * 60
-        self.timer = self.timeframe
+        # self.timeframe = Const.REFRESH_TIME[index] * 60
+        # self.timer = self.timeframe
+        self.createupdatethread()
         controller = LabelFrame(self.root, text="Controller", padx=100)
         self.__setcontroller(root=controller)
         controller.pack(side=BOTTOM)
+
+    def createupdatethread(self):
+        self.updatethr = updatethread(updatefunc=self.__updatedata)
 
     def __setcontroller(self, root):
         self.Timer = Label(root, text="Press start", width=15)
@@ -40,6 +55,7 @@ class optionscontroller:
         self.errorlabel.pack(side=LEFT, padx=10)
 
     def stoppressed(self):
+        print("stopping:", getname(index=self.index))
         self.__stopfun()
         self.__stopmiddlepagefunc(index=self.index)
         self.stopbut.config(state=DISABLED)
@@ -49,6 +65,7 @@ class optionscontroller:
         my_notebook.tab(self.index + 1, text=getname(index=self.index))
 
     def startpressed(self):
+        print("starting:",getname(index=self.index))
         self.__startfun()
         self.__startmiddlepagefunc(index=self.index)
         self.startbut.config(state=DISABLED)
@@ -56,7 +73,6 @@ class optionscontroller:
         self.starting = True
         self.stopped = False
         self.__datareset()
-        self.timer = 0
         self.__start()
 
     def linkedtomiddlepage(self, startmiddlepagefunc, stopmiddlepagefunc):
@@ -69,12 +85,15 @@ class optionscontroller:
         self.__homepageerrorlabel = homepageerrorlabel
 
     def __start(self):
-        self.Timer.config(text=time.strftime("%H : %M: %S", time.gmtime(self.timer)))
+        self.Timer.config(text=time.strftime("%H : %M: %S"))
         if self.stopped == False:
-            self.timer -= 1
-            if (self.timer <= 0):
-                self.__updatedata()
-                self.timer = self.timeframe
+            try:
+                if self.updatethr.started == None:
+                    self.updatethr.start()
+                elif self.updatethr.started == False:
+                    del self.updatethr
+            except:
+                self.createupdatethread()
             self.Timer.after(ms=1000, func=self.__start)
 
 
@@ -100,16 +119,16 @@ class optionindex:
         self.__CALLSOI = LabelFrame(self.__CALLS, text=Const.OI)
         self.__CALLSLTP = LabelFrame(self.__CALLS, text=Const.LTP)
         self.__CALLSCOI = LabelFrame(self.__CALLS, text=Const.CHANGE_IN_OI)
-        self.__CALLSTREND1 = LabelFrame(self.__CALLS, text=Const.getTrends(i=1, index=index))
-        self.__CALLSTREND2 = LabelFrame(self.__CALLS, text=Const.getTrends(i=2, index=index))
-        self.__CALLSTREND3 = LabelFrame(self.__CALLS, text=Const.getTrends(i=3, index=index))
+        self.__CALLSTREND1 = LabelFrame(self.__CALLS, text=Const.getTrends(i=1))
+        self.__CALLSTREND2 = LabelFrame(self.__CALLS, text=Const.getTrends(i=2))
+        self.__CALLSTREND3 = LabelFrame(self.__CALLS, text=Const.getTrends(i=3))
 
         self.__PUTSOI = LabelFrame(self.__PUTS, text=Const.OI)
         self.__PUTSLTP = LabelFrame(self.__PUTS, text=Const.LTP)
         self.__PUTSCOI = LabelFrame(self.__PUTS, text=Const.CHANGE_IN_OI)
-        self.__PUTSTREND1 = LabelFrame(self.__PUTS, text=Const.getTrends(i=1, index=index))
-        self.__PUTSTREND2 = LabelFrame(self.__PUTS, text=Const.getTrends(i=2, index=index))
-        self.__PUTSTREND3 = LabelFrame(self.__PUTS, text=Const.getTrends(i=3, index=index))
+        self.__PUTSTREND1 = LabelFrame(self.__PUTS, text=Const.getTrends(i=1))
+        self.__PUTSTREND2 = LabelFrame(self.__PUTS, text=Const.getTrends(i=2))
+        self.__PUTSTREND3 = LabelFrame(self.__PUTS, text=Const.getTrends(i=3))
 
         self.__Strike = LabelFrame(self.__Strikeprice, text=Const.STRIKE_PRICE)
         self.__Strike.grid(row=0, column=0)
@@ -134,16 +153,9 @@ class optionindex:
         self.__loadrows()
         self.__settimeframe()
 
-    # TODI:TIMEFRAME RELOAD
+    # TODO:TIMEFRAME RELOAD
     def __settimeframe(self):
         self.Controller.timeframe = Const.REFRESH_TIME[self.__index] * 60
-        self.__CALLSTREND1.config(text=Const.getTrends(i=1, index=self.__index))
-        self.__CALLSTREND2.config(text=Const.getTrends(i=2, index=self.__index))
-        self.__CALLSTREND3.config(text=Const.getTrends(i=3, index=self.__index))
-
-        self.__PUTSTREND1.config(text=Const.getTrends(i=1, index=self.__index))
-        self.__PUTSTREND2.config(text=Const.getTrends(i=2, index=self.__index))
-        self.__PUTSTREND3.config(text=Const.getTrends(i=3, index=self.__index))
 
     def __setcolumnpositions(self):
         self.__CALLS.grid(row=1, column=Const.CALLS_POS[self.__index] - 1)
@@ -241,7 +253,7 @@ class optionindex:
         if data[Const.ERROR] != None:
             if data[Const.ERROR] == Const.NO_INTERNET:
                 self.__frames[Const.ERROR].config(text="NO INTERNET, CHECK YOUR CONNECTION", width=50)
-                #self.__homepageerrorlabel.config(text="NO INTERNET, CHECK YOUR CONNECTION")
+                # self.__homepageerrorlabel.config(text="NO INTERNET, CHECK YOUR CONNECTION")
             else:
                 self.__frames[Const.ERROR].config(text="Site is Not Working", width=30)
                 self.__homepageerrorlabel.config(text="Site is Not Working")
@@ -428,7 +440,6 @@ class Optionchaindataset:
                                  down=self.__downvaluesentry.get(),
                                  mode=mode)
 
-
     def startpressed(self):
         self.__option.Controller.startpressed()
 
@@ -567,10 +578,13 @@ class Homemiddlepage:
         self.__savebut.config(state=NORMAL)
 
     def startfunc(self, index):
+        print(index, "prev nifty started in start func:", self.__niftystarted)
         if index == Const.NIFTY:
+            print("nifty started")
             self.__niftystarted = True
             self.__nifty.Disableall()
-        else:
+        if index == Const.BANK_NIFTY:
+            print("bank nifty started")
             self.__bankniftystarted = True
             self.__banknifty.Disableall()
 
@@ -578,12 +592,15 @@ class Homemiddlepage:
             self.Disableall()
         else:
             self.Enableall()
+        print(index,"nifty started in start func:", self.__niftystarted)
+        print(index,"bank nifty started in start func:", self.__bankniftystarted)
+        print("")
 
     def stopfunc(self, index):
         if index == Const.NIFTY:
             self.__niftystarted = False
             self.__nifty.Enableall()
-        else:
+        if index == Const.BANK_NIFTY:
             self.__bankniftystarted = False
             self.__banknifty.Enableall()
 
@@ -591,6 +608,9 @@ class Homemiddlepage:
             self.Disableall()
         else:
             self.Enableall()
+        print(index,"nifty started in stopfunc:", self.__niftystarted)
+        print(index,"bank nifty started in stopfunc:", self.__bankniftystarted)
+        print("")
 
     def restorepressed(self):
         self.__nifty.restorepressed()
@@ -598,9 +618,11 @@ class Homemiddlepage:
 
     def startpressed(self):
         if not self.__niftystarted:
+            print("nifty start pressed")
             self.__nifty.startpressed()
             self.__niftystarted = True
         if not self.__bankniftystarted:
+            print("bank nifty start pressed")
             self.__banknifty.startpressed()
             self.__bankniftystarted = True
 
@@ -612,6 +634,8 @@ class Homemiddlepage:
         if self.__bankniftystarted:
             self.__banknifty.stoppressed()
             self.__bankniftystarted = False
+        print("nifty started in stop:", self.__niftystarted)
+        print("bank nifty started in stop:", self.__bankniftystarted)
 
     def loadpressed(self):
         self.__nifty.loadpressed()
