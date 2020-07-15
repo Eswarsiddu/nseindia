@@ -4,24 +4,18 @@ from dependencies.Constants import Constants as Const
 sortingkey = lambda x: x[1]
 
 
-def convertolakhs(n):
-    n = n / 1000
-    s = '{0:.2f}'.format(n)
-    if s == '-0.00' or s == '0.00':
-        s = '0'
-    return s
 
 
 def textformat(value, catogery):
     if catogery == Const.OI:
-        return convertolakhs(value)
+        return str(value)
     if catogery == Const.CHANGE_IN_OI:
-        return convertolakhs(value)
+        return str(value)
     if catogery == Const.LTP:
         return str(value)
     if catogery == Const.TRENDS:
-        val = convertolakhs(value)
-        return '-' if val == '0' else val
+        val = str(value)
+        return '-' if val == '0' or val == '0.0' else val
     if catogery == Const.STRIKE_PRICE:
         return str(value)
 
@@ -41,9 +35,10 @@ def get_cell_attributes(text, fontcolor=Const.BLACK, cellcolor=None, fontstyle=C
 
 
 def modify_maxdata(options):
-    options[Const.CELL_FILL_COLOR] = Const.BLUE
-    if options[Const.FONT_COLOR] == Const.BLACK:
-        options[Const.FONT_COLOR] = Const.WHITE
+    if options[Const.TEXT] not in ('-','0.0'):
+        options[Const.CELL_FILL_COLOR] = Const.BLUE
+        if options[Const.FONT_COLOR] == Const.BLACK:
+            options[Const.FONT_COLOR] = Const.WHITE
     return options
 
 
@@ -64,12 +59,13 @@ def getcellcolor(turnoverprice, strikeprice, optiontype, catogery, obj=0):
     else:
         if strikeprice > turnoverprice:
             return Const.YELLOW
-    return None
+    return Const.WHITE
 
 # TODO: FONT COLOR BASED ON CATOGERY
 def getfontcolor(text, catogery):
-    if text[0] == '-' and len(text) > 1:
-        return Const.RED
+    if catogery == Const.CHANGE_IN_OI:
+        if text[0] == '-' and len(text) > 1:
+            return Const.RED
     return Const.BLACK
 
 
@@ -146,15 +142,6 @@ def getoptions(data, strikeprice, turnoverprice, optiontype, maxvalues):
         maxvalues[i] = findmaxvalue(presentdata=data[i],
                                     prevdata=maxvalues[i],
                                     strikeprice=strikeprice)
-    maxvalues[Const.TRENDS1] = findmaxvalue(presentdata=data[Const.TRENDS][0],
-                                            prevdata=maxvalues[Const.TRENDS1],
-                                            strikeprice=strikeprice)
-    maxvalues[Const.TRENDS2] = findmaxvalue(presentdata=data[Const.TRENDS][1],
-                                            prevdata=maxvalues[Const.TRENDS2],
-                                            strikeprice=strikeprice)
-    maxvalues[Const.TRENDS3] = findmaxvalue(presentdata=data[Const.TRENDS][2],
-                                            prevdata=maxvalues[Const.TRENDS3],
-                                            strikeprice=strikeprice)
     return (option, maxvalues)
 
 
@@ -247,6 +234,18 @@ def analyse_data(data, index):
 
         options[strikeprice][Const.CALLS] = calls
         options[strikeprice][Const.PUTS] = puts
+    turnoverlist = getStrikeRange(turnoverprice=turnoverprice,up=1,down=1,index=index)
+    for es in turnoverlist:
+        for ji in (Const.CALLS,Const.PUTS):
+            highestvalues[ji][Const.TRENDS1] = findmaxvalue(presentdata=data[es][ji][Const.TRENDS][0],
+                                                                     prevdata=highestvalues[ji][Const.TRENDS1],
+                                                                     strikeprice=es)
+            highestvalues[ji][Const.TRENDS2] = findmaxvalue(presentdata=data[es][ji][Const.TRENDS][1],
+                                                        prevdata=highestvalues[ji][Const.TRENDS2],
+                                                        strikeprice=es)
+            highestvalues[ji][Const.TRENDS3] = findmaxvalue(presentdata=data[es][ji][Const.TRENDS][2],
+                                                        prevdata=highestvalues[ji][Const.TRENDS3],
+                                                        strikeprice=es)
     options = modify_data(options=options,maxvalues=highestvalues[Const.CALLS],type=Const.CALLS)
     options = modify_data(options=options, maxvalues=highestvalues[Const.PUTS], type=Const.PUTS)
     return options

@@ -1,4 +1,4 @@
-import threading
+import threading, pyautogui
 c=0
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
@@ -19,6 +19,7 @@ class updatethread(threading.Thread):
     def run(self):
         self.started=True
         self.updatefunc()
+        time.sleep(4)
         self.started=False
 
 class optionscontroller:
@@ -55,7 +56,7 @@ class optionscontroller:
         self.errorlabel.pack(side=LEFT, padx=10)
 
     def stoppressed(self):
-        print("stopping:", getname(index=self.index))
+        # print("stopping:", getname(index=self.index))
         self.__stopfun()
         self.__stopmiddlepagefunc(index=self.index)
         self.stopbut.config(state=DISABLED)
@@ -65,7 +66,7 @@ class optionscontroller:
         my_notebook.tab(self.index + 1, text=getname(index=self.index))
 
     def startpressed(self):
-        print("starting:",getname(index=self.index))
+        # print("starting:",getname(index=self.index))
         self.__startfun()
         self.__startmiddlepagefunc(index=self.index)
         self.startbut.config(state=DISABLED)
@@ -155,11 +156,7 @@ class optionindex:
     def settablestructure(self):
         self.__setcolumnpositions()
         self.__loadrows()
-        self.__settimeframe()
 
-    # TODO:TIMEFRAME RELOAD
-    def __settimeframe(self):
-        self.Controller.timeframe = Const.REFRESH_TIME[self.__index] * 60
 
     def __setcolumnpositions(self):
         self.__CALLS.grid(row=1, column=Const.CALLS_POS[self.__index] - 1)
@@ -304,7 +301,6 @@ class Optionchaindataset:
         self.__option.linkedtomiddlepage(stopmiddlepagefunc=stopmiddlepagefunc, startmiddlepagefunc=startmiddlepagefunc)
 
     def __setentrylist(self):
-        self.entrylist.append(self.__timeframeentry)
         self.entrylist.append(self.__callsentry)
         self.entrylist.append(self.__putsentry)
         self.entrylist.append(self.__strikepriceentry)
@@ -582,13 +578,13 @@ class Homemiddlepage:
         self.__savebut.config(state=NORMAL)
 
     def startfunc(self, index):
-        print(index, "prev nifty started in start func:", self.__niftystarted)
+        # print(index, "prev nifty started in start func:", self.__niftystarted)
         if index == Const.NIFTY:
-            print("nifty started")
+            # print("nifty started")
             self.__niftystarted = True
             self.__nifty.Disableall()
         if index == Const.BANK_NIFTY:
-            print("bank nifty started")
+            # print("bank nifty started")
             self.__bankniftystarted = True
             self.__banknifty.Disableall()
 
@@ -596,9 +592,9 @@ class Homemiddlepage:
             self.Disableall()
         else:
             self.Enableall()
-        print(index,"nifty started in start func:", self.__niftystarted)
-        print(index,"bank nifty started in start func:", self.__bankniftystarted)
-        print("")
+        # print(index,"nifty started in start func:", self.__niftystarted)
+        # print(index,"bank nifty started in start func:", self.__bankniftystarted)
+        # print("")
 
     def stopfunc(self, index):
         if index == Const.NIFTY:
@@ -612,9 +608,9 @@ class Homemiddlepage:
             self.Disableall()
         else:
             self.Enableall()
-        print(index,"nifty started in stopfunc:", self.__niftystarted)
-        print(index,"bank nifty started in stopfunc:", self.__bankniftystarted)
-        print("")
+        # print(index,"nifty started in stopfunc:", self.__niftystarted)
+        # print(index,"bank nifty started in stopfunc:", self.__bankniftystarted)
+        # print("")
 
     def restorepressed(self):
         self.__nifty.restorepressed()
@@ -622,11 +618,11 @@ class Homemiddlepage:
 
     def startpressed(self):
         if not self.__niftystarted:
-            print("nifty start pressed")
+            # print("nifty start pressed")
             self.__nifty.startpressed()
             self.__niftystarted = True
         if not self.__bankniftystarted:
-            print("bank nifty start pressed")
+            # print("bank nifty start pressed")
             self.__banknifty.startpressed()
             self.__bankniftystarted = True
 
@@ -638,8 +634,8 @@ class Homemiddlepage:
         if self.__bankniftystarted:
             self.__banknifty.stoppressed()
             self.__bankniftystarted = False
-        print("nifty started in stop:", self.__niftystarted)
-        print("bank nifty started in stop:", self.__bankniftystarted)
+        # print("nifty started in stop:", self.__niftystarted)
+        # print("bank nifty started in stop:", self.__bankniftystarted)
 
     def loadpressed(self):
         self.__nifty.loadpressed()

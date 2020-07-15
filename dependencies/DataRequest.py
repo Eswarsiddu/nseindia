@@ -1,6 +1,6 @@
 from dependencies.Constants import Constants as Const
 from dependencies import Sampledata
-import requests
+import requests,json
 
 
 def calculate_price(n, index):
@@ -8,8 +8,21 @@ def calculate_price(n, index):
     n -= (n % Const.strikesdiff[index])
     return n
 
+def convertolakhs(n):
+    n = n / 1000
+    return convertodecimals(n)
+
+def convertodecimals(n):
+    s = '{0:.2f}'.format(n)
+    if s == '-0.00' or s == '0.00':
+        s = '0'
+    return float(s)
+
+c=0
 
 def get_data(body, options):
+    global c
+    c+=1
     for data in body:
         strike_price: int = data['strikePrice']
         try:
@@ -26,21 +39,21 @@ def get_data(body, options):
             except:
                 options[strike_price][j] = {}
             options[strike_price][j][Const.OI] = temp['openInterest']
-            options[strike_price][j][Const.CHANGE_IN_OI] = temp['changeinOpenInterest']
+            options[strike_price][j][Const.CHANGE_IN_OI] = convertolakhs(temp['changeinOpenInterest'])
             options[strike_price][j][Const.LTP] = temp['lastPrice']
             try:
                 trend_change_oi = options[strike_price][j][Const.TREND_CHANGE_OF_OI]
-                trend_change_oi.insert(0, temp['changeinOpenInterest'])
+                trend_change_oi.insert(0, convertolakhs(temp['changeinOpenInterest']))
                 if len(trend_change_oi) > 6:
                     trend_change_oi.pop()
                 if len(trend_change_oi) == 1:
-                    options[strike_price][j][Const.TRENDS][0] = trend_change_oi[1] - trend_change_oi[0]
+                    options[strike_price][j][Const.TRENDS][0] = convertodecimals(trend_change_oi[0] - trend_change_oi[1])
                 for i in range(1, len(trend_change_oi)):
-                    options[strike_price][j][Const.TRENDS][i - 1] = trend_change_oi[i] - trend_change_oi[0]
+                    options[strike_price][j][Const.TRENDS][i - 1] = convertodecimals(trend_change_oi[0] - trend_change_oi[i])
                 options[strike_price][j][Const.TREND_CHANGE_OF_OI] = trend_change_oi
 
             except:
-                options[strike_price][j][Const.TREND_CHANGE_OF_OI] = [temp['changeinOpenInterest']]
+                options[strike_price][j][Const.TREND_CHANGE_OF_OI] = [convertolakhs(temp['changeinOpenInterest'])]
                 options[strike_price][j][Const.TRENDS] = [0, 0, 0, 0, 0]
     return options
 
@@ -62,12 +75,18 @@ def get_options(options, request, index):
 
     while True:
         try:
-            body = requests.get(url=request,
-                                headers=Const.HEADERS
-                                ).json()
-        except:
+            if Const.TESTING == True:
+                Sampledata.testindex += 1
+                body = Sampledata.modniftydata[Sampledata.testindex]
+            else:
+                request_json = requests.get(url=request,headers=Const.HEADERS)
+                if 'json' in request_json.headers.get('Content-Type'):
+                    body = request_json.json()
+        except requests.ConnectionError:
             options[Const.ERROR] = Const.NO_INTERNET
             return options
+        except Exception as e:
+            print("error:",str(e))
         try:
             timestamp = body['records']['timestamp'].split(" ")
         except:
@@ -103,10 +122,14 @@ class DataRequest:
 
     @property
     def request_data(self):
-        if Const.TESTING:
-            Sampledata.testindex += 1
-            data = Sampledata.niftydata[Sampledata.testindex]
-            return data
+        # if Const.TESTING:
+        #     Sampledata.testindex += 1
+        #     data = Sampledata.niftydata[Sampledata.testindex]
+        #     return data
         opt = get_options(options=self.Data, request=self.__url, index=self.__index)
-        print(opt)
+        if opt[Const.ERROR]!=None:
+            self.reset_data()
+            self.Data[Const.ERROR] = opt[Const.ERROR]
+            opt = self.Data
+        #print(opt)
         return opt
