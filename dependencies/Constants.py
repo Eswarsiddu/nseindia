@@ -27,7 +27,7 @@ class Constants:
     @staticmethod
     def checkvalues(calls_oi, calls_changeinoi, calls_ltp, calls_trend1, calls_trend2, calls_trend3,
                     puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3, up, down,
-                    refreshtime, calls, strikeprice, puts, index,mode):
+                    calls, strikeprice, puts, index,mode):
         t = ([calls, puts, strikeprice],
              [calls_oi, calls_ltp, calls_changeinoi, calls_trend1, calls_trend2, calls_trend3],
              [puts_oi, puts_changeinoi, puts_ltp, puts_trend1, puts_trend2, puts_trend3])
@@ -52,18 +52,16 @@ class Constants:
         if int(down) <= 0:
             return "down value should be greather then 0"
 
-        if int(refreshtime) < 3:
-            return "Time frame must be greater than 3 minutes"
 
         if mode=="loading":
-            Constants.loadvalues(index=index, refreshtime=refreshtime, strikeprice=strikeprice, calls=calls,
+            Constants.loadvalues(index=index, strikeprice=strikeprice, calls=calls,
                                  calls_oi=calls_oi, calls_ltp=calls_ltp, calls_changeinoi=calls_changeinoi,
                                  calls_trend1=calls_trend1, calls_trend2=calls_trend2, calls_trend3=calls_trend3,
                                  puts=puts, puts_oi=puts_oi, puts_changeinoi=puts_changeinoi, puts_ltp=puts_ltp,
                                  puts_trend1=puts_trend1, puts_trend2=puts_trend2, puts_trend3=puts_trend3, up=up,
                                  down=down)
         else:
-            Constants.savevalues(index=index, refreshtime=refreshtime, strikeprice=strikeprice, calls=calls,
+            Constants.savevalues(index=index, strikeprice=strikeprice, calls=calls,
                                  calls_oi=calls_oi, calls_ltp=calls_ltp, calls_changeinoi=calls_changeinoi,
                                  calls_trend1=calls_trend1, calls_trend2=calls_trend2, calls_trend3=calls_trend3,
                                  puts=puts, puts_oi=puts_oi, puts_changeinoi=puts_changeinoi, puts_ltp=puts_ltp,
@@ -72,8 +70,7 @@ class Constants:
         return ""
 
     @staticmethod
-    def loadvalues(index,refreshtime,strikeprice,calls,calls_oi,calls_ltp,calls_changeinoi,calls_trend1,calls_trend2,calls_trend3,puts,puts_oi,puts_ltp,puts_changeinoi,puts_trend1,puts_trend2,puts_trend3,up,down):
-        Constants.REFRESH_TIME[index] = int(refreshtime)
+    def loadvalues(index,strikeprice,calls,calls_oi,calls_ltp,calls_changeinoi,calls_trend1,calls_trend2,calls_trend3,puts,puts_oi,puts_ltp,puts_changeinoi,puts_trend1,puts_trend2,puts_trend3,up,down):
         Constants.STRIKEPRICE_POS[index] = int(strikeprice)
         Constants.CALLS_POS[index] = int(calls)
         Constants.CALLS_OI[index] = int(calls_oi)
@@ -94,7 +91,6 @@ class Constants:
 
     @staticmethod
     def setvalues(index,data):
-        Constants.REFRESH_TIME[index] = data[Constants.REFRESTIME][str(index)]
         Constants.UP_VALUE[index] = data[Constants.UP][str(index)]
         Constants.DOWN_VALUE[index] = data[Constants.DOWN][str(index)]
         Constants.STRIKEPRICE_POS[index]=data[Constants.STRIKE_PRICE][str(index)]
@@ -130,11 +126,10 @@ class Constants:
 
 
     @staticmethod
-    def savevalues(index, refreshtime, strikeprice, calls, calls_oi, calls_ltp, calls_changeinoi, calls_trend1, calls_trend2, calls_trend3, puts, puts_oi, puts_ltp, puts_changeinoi, puts_trend1, puts_trend2, puts_trend3, up, down):
+    def savevalues(index, strikeprice, calls, calls_oi, calls_ltp, calls_changeinoi, calls_trend1, calls_trend2, calls_trend3, puts, puts_oi, puts_ltp, puts_changeinoi, puts_trend1, puts_trend2, puts_trend3, up, down):
         f = open(columnsvaluefilepath,"r+")
         da = json.load(f)
         data = da[Constants.SAVED_VALUES]
-        data[Constants.REFRESTIME][str(index)] = int(refreshtime)
         data[Constants.STRIKE_PRICE][str(index)] = int(strikeprice)
         data[Constants.UP][str(index)] = int(up)
         data[Constants.DOWN][str(index)] = int(down)
@@ -190,9 +185,7 @@ class Constants:
     PUTS_TREND2 = [5, 5]
     PUTS_TREND3 = [6, 6]
 
-    REFRESH_TIME = [5, 5]
 
-    REFRESTIME = "refreshtime"
     UP = "up"
     DOWN = "down"
 

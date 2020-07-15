@@ -10,6 +10,9 @@ def getsizeandpos(height, width):
     posx = int(screenwidth / 2 - width / 2)
     return str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
 
+def on_closing():
+    exit(0)
+
 class updatethread(threading.Thread):
     def __init__(self, updatefunc):
         super().__init__()
@@ -19,7 +22,7 @@ class updatethread(threading.Thread):
     def run(self):
         self.started=True
         self.updatefunc()
-        time.sleep(4)
+        time.sleep(1)
         self.started=False
 
 class optionscontroller:
@@ -35,8 +38,6 @@ class optionscontroller:
         self.index = index
         self.__startfun = None
         self.__stopfun = None
-        # self.timeframe = Const.REFRESH_TIME[index] * 60
-        # self.timer = self.timeframe
         self.createupdatethread()
         controller = LabelFrame(self.root, text="Controller", padx=100)
         self.__setcontroller(root=controller)
@@ -56,7 +57,6 @@ class optionscontroller:
         self.errorlabel.pack(side=LEFT, padx=10)
 
     def stoppressed(self):
-        # print("stopping:", getname(index=self.index))
         self.__stopfun()
         self.__stopmiddlepagefunc(index=self.index)
         self.stopbut.config(state=DISABLED)
@@ -66,7 +66,6 @@ class optionscontroller:
         my_notebook.tab(self.index + 1, text=getname(index=self.index))
 
     def startpressed(self):
-        # print("starting:",getname(index=self.index))
         self.__startfun()
         self.__startmiddlepagefunc(index=self.index)
         self.startbut.config(state=DISABLED)
@@ -86,13 +85,9 @@ class optionscontroller:
         self.__homepageerrorlabel = homepageerrorlabel
 
     def __start(self):
-        global c
-        timeer = time.strftime("%H : %M: %S")
-        self.Timer.config(text=timeer)
+        self.Timer.config(text=time.strftime("%H : %M: %S"))
         if self.stopped == False:
-            c+=1
             try:
-                self.Timer.config(text=(timeer+","+str(c)))
                 if self.updatethr.started == None:
                     self.updatethr.start()
                 elif self.updatethr.started == False:
@@ -347,7 +342,6 @@ class Optionchaindataset:
         self.stopbut.config(state=DISABLED)
 
     def __setvalues(self):
-        self.__timeframeentry.delete(0, END)
         self.__callsentry.delete(0, END)
         self.__putsentry.delete(0, END)
         self.__strikepriceentry.delete(0, END)
@@ -366,7 +360,6 @@ class Optionchaindataset:
         self.__upvaluesentry.delete(0, END)
         self.__downvaluesentry.delete(0, END)
 
-        self.__timeframeentry.insert(0, Const.REFRESH_TIME[self.__index])
         self.__callsentry.insert(0, Const.CALLS_POS[self.__index])
         self.__putsentry.insert(0, Const.PUTS_POS[self.__index])
         self.__strikepriceentry.insert(0, Const.STRIKEPRICE_POS[self.__index])
@@ -434,7 +427,6 @@ class Optionchaindataset:
                                  puts_trend1=self.__putstrend1entry.get(),
                                  puts_trend2=self.__putstrend2entry.get(),
                                  puts_trend3=self.__putstrend3entry.get(),
-                                 refreshtime=self.__timeframeentry.get(),
                                  index=self.__index,
                                  up=self.__upvaluesentry.get(),
                                  down=self.__downvaluesentry.get(),
@@ -449,8 +441,6 @@ class Optionchaindataset:
     def __setupupperframe(self, root):
         padyvalue = 7
         entrywidth = 10
-        timeframelabel = Label(master=root, text="TIME FRAME")
-        self.__timeframeentry = Entry(master=root, width=entrywidth)
         callslabel = Label(master=root, text="CALLS")
         self.__callsentry = Entry(master=root, width=entrywidth)
         strikepricelabel = Label(master=root, text="STRIKE PRICE")
@@ -491,7 +481,6 @@ class Optionchaindataset:
 
         self.__errorLabel = Label(master=root, text="")
 
-        timeframelabel.grid(row=0, column=0, pady=padyvalue)
         callslabel.grid(row=1, column=0, pady=padyvalue)
         strikepricelabel.grid(row=1, column=2, pady=padyvalue)
         putslabel.grid(row=1, column=4, pady=padyvalue)
@@ -510,7 +499,6 @@ class Optionchaindataset:
         upvalueslabel.grid(row=8, column=0, pady=padyvalue)
         downvalueslabel.grid(row=8, column=3, pady=padyvalue)
 
-        self.__timeframeentry.grid(row=0, column=1, pady=padyvalue)
         self.__callsentry.grid(row=1, column=1, pady=padyvalue)
         self.__putsentry.grid(row=1, column=5, pady=padyvalue)
         self.__strikepriceentry.grid(row=1, column=3, pady=padyvalue)
@@ -558,8 +546,12 @@ class Homemiddlepage:
         self.__startbut.pack(side=TOP, padx=padx, pady=pady)
         self.__nifty.linkedtomiddlepage(startmiddlepagefunc=self.startfunc, stopmiddlepagefunc=self.stopfunc)
         self.__banknifty.linkedtomiddlepage(startmiddlepagefunc=self.startfunc, stopmiddlepagefunc=self.stopfunc)
-        Button(master=frame, text="QUIT", command=main.quit).pack(side=TOP, padx=padx, pady=pady)
+        Button(master=frame, text="QUIT", command=self.quitpressed).pack(side=TOP, padx=padx, pady=pady)
         frame.pack(side=LEFT, expand=1, fill="both")
+
+    def quitpressed(self):
+        main.quit()
+        exit(0)
 
     def Disableall(self):
         self.__stopbut.config(state=NORMAL)
@@ -676,7 +668,7 @@ if __name__ == "__main__":
     import time
     from tkinter import *
     from tkinter import font, ttk
-    import os, platform
+    import os
     from dependencies.DataRequest import DataRequest
     from dependencies.DataFormatter import DataFormatter
     from dependencies.Constants import Constants as Const
@@ -705,4 +697,5 @@ if __name__ == "__main__":
     my_notebook.add(NiftyPage, text=getname(index=Const.NIFTY))
     my_notebook.add(BankNiftyPage, text=getname(index=Const.BANK_NIFTY))
     my_notebook.pack()
+    main.protocol("WM_DELETE_WINDOW", on_closing)
     main.mainloop()
