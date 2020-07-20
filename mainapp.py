@@ -1,4 +1,4 @@
-import threading, pyautogui
+import threading,ctypes
 c=0
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
@@ -11,11 +11,12 @@ def getsizeandpos(height, width):
     return str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
 
 def on_closing():
-    exit(0)
+    quit(0)
+    exit(1)
 
 class updatethread(threading.Thread):
     def __init__(self, updatefunc):
-        super().__init__()
+        threading.Thread.__init__(self)
         self.updatefunc = updatefunc
         self.started=None
 
@@ -24,6 +25,19 @@ class updatethread(threading.Thread):
         self.updatefunc()
         time.sleep(1)
         self.started=False
+
+    def get_id(self):
+        if hasattr(self,'_thread_id'):
+            return self._thread_id
+        for id,thread in threading._active.items():
+            if thread is self:
+                return id
+
+    def raise_exception(self):
+        thread_id = self.get_id()
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,ctypes.py_object(SystemExit))
+        if res > 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
 
 class optionscontroller:
     def __init__(self, root, update, index, datareset):
@@ -61,6 +75,7 @@ class optionscontroller:
         self.__stopmiddlepagefunc(index=self.index)
         self.stopbut.config(state=DISABLED)
         self.startbut.config(state=NORMAL)
+        self.updatethr.raise_exception()
         self.stopped = True
         self.__homepageerrorlabel.config(text="")
         my_notebook.tab(self.index + 1, text=getname(index=self.index))
@@ -87,13 +102,14 @@ class optionscontroller:
     def __start(self):
         self.Timer.config(text=time.strftime("%H : %M: %S"))
         if self.stopped == False:
-            try:
-                if self.updatethr.started == None:
-                    self.updatethr.start()
-                elif self.updatethr.started == False:
-                    del self.updatethr
-            except:
-                self.createupdatethread()
+            self.__updatedata()
+            # try:
+            #     if self.updatethr.started == None:
+            #         self.updatethr.start()
+            #     elif self.updatethr.started == False:
+            #         del self.updatethr
+            # except:
+            #     self.createupdatethread()
             self.Timer.after(ms=1000, func=self.__start)
 
 

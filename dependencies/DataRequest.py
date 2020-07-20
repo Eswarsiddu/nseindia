@@ -118,6 +118,7 @@ class DataRequest:
         self.reset_data()
 
     def reset_data(self):
+        print("resetting data")
         self.Data = {}
 
     @property
