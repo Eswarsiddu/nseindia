@@ -52,7 +52,6 @@ def get_data(body, options):
                 for i in range(1, len(trend_change_oi)):
                     options[strike_price][j][Const.TRENDS][i - 1] = convertodecimals(trend_change_oi[0] - trend_change_oi[i])
                 options[strike_price][j][Const.TREND_CHANGE_OF_OI] = trend_change_oi
-                print("strk",strike_price,trend_change_oi)
             except:
                 options[strike_price][j][Const.TREND_CHANGE_OF_OI] = [convertolakhs(temp['changeinOpenInterest'])]
                 options[strike_price][j][Const.TRENDS] = [0, 0, 0, 0, 0]
