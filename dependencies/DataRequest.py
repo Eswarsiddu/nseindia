@@ -1,7 +1,8 @@
 from dependencies.Constants import Constants as Const
 from dependencies import Sampledata
-import requests,json
+import requests,json,threading,ctypes,time
 
+requesting = False
 
 def calculate_price(n, index):
     n = int(n)
@@ -63,7 +64,6 @@ def market_status(time):
         return False
     return True
 
-
 def get_options(options, request, index):
     body = None
     timestamp = ""
@@ -73,27 +73,29 @@ def get_options(options, request, index):
     except:
         presenttime = ""
 
-    while True:
-        try:
-            if Const.TESTING == True:
-                Sampledata.testindex += 1
-                body = Sampledata.modniftydata[Sampledata.testindex]
-            else:
-                request_json = requests.get(url=request,headers=Const.HEADERS)
-                if 'json' in request_json.headers.get('Content-Type'):
-                    body = request_json.json()
-        except requests.ConnectionError:
-            options[Const.ERROR] = Const.NO_INTERNET
-            return options
-        except Exception as e:
-            print("error:",str(e))
-        try:
-            timestamp = body['records']['timestamp'].split(" ")
-        except:
-            options[Const.ERROR] = Const.NO_DATA_FROM_SITE
-            return options
-        if presenttime != timestamp[1]:
-            break
+    try:
+        if Const.TESTING == True:
+            Sampledata.testindex += 1
+            body = Sampledata.modniftydata[Sampledata.testindex]
+        else:
+            strtime = time.time()
+            request_json = requests.get(url=request, headers=Const.HEADERS)
+            if 'json' in request_json.headers.get('Content-Type'):
+                body = request_json.json()
+            endtime = time.time()
+            print("requesting time",str(endtime-strtime))
+    except requests.ConnectionError:
+        options[Const.ERROR] = Const.NO_INTERNET
+        return options
+    except Exception as e:
+        print("error:", str(e))
+    try:
+        timestamp = body['records']['timestamp'].split(" ")
+    except:
+        options[Const.ERROR] = Const.NO_DATA_FROM_SITE
+        return options
+    if presenttime == timestamp[1]:
+        return None
 
     if market_status(time=timestamp[1]):
         options[Const.MARKET_STATUS] = True
@@ -118,7 +120,6 @@ class DataRequest:
         self.reset_data()
 
     def reset_data(self):
-        print("resetting data")
         self.Data = {}
 
     @property
@@ -128,6 +129,10 @@ class DataRequest:
         #     data = Sampledata.niftydata[Sampledata.testindex]
         #     return data
         opt = get_options(options=self.Data, request=self.__url, index=self.__index)
+        if opt != None:
+            self.Data = opt
+        else:
+            return opt
         if opt[Const.ERROR]!=None:
             self.reset_data()
             self.Data[Const.ERROR] = opt[Const.ERROR]

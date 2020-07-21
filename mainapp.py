@@ -261,7 +261,10 @@ class optionindex:
         self.__setattribute(data=data[Const.TRENDS3], label=frame[Const.TRENDS3])
 
     def __updatedata(self):
-        data = self.__Dataformatter.update_data(self.__request.request_data)
+        DATA = self.__request.request_data
+        if DATA == None:
+            return
+        data = self.__Dataformatter.update_data(DATA)
         if data[Const.ERROR] != None:
             if data[Const.ERROR] == Const.NO_INTERNET:
                 self.__frames[Const.ERROR].config(text="NO INTERNET, CHECK YOUR CONNECTION", width=50)
