@@ -1,5 +1,7 @@
-import threading,ctypes
-c=0
+import threading
+import ctypes
+
+
 getname = lambda index: Const.NIFTY_NAME if index == Const.NIFTY else Const.BANK_NIFTY_NAME
 
 
@@ -10,36 +12,39 @@ def getsizeandpos(height, width):
     posx = int(screenwidth / 2 - width / 2)
     return str(width) + "x" + str(height) + "+" + str(posx) + "+" + str(posy)
 
+
 def on_closing():
     quit(0)
     exit(1)
 
-class updatethread(threading.Thread):
+
+class UpdateThread(threading.Thread):
     def __init__(self, updatefunc):
         threading.Thread.__init__(self)
         self.updatefunc = updatefunc
-        self.started=None
+        self.started = None
 
     def run(self):
-        self.started=True
+        self.started = True
         self.updatefunc()
         time.sleep(1)
-        self.started=False
+        self.started = False
 
     def get_id(self):
-        if hasattr(self,'_thread_id'):
+        if hasattr(self, '_thread_id'):
             return self._thread_id
-        for id,thread in threading._active.items():
-            if thread is self:
-                return id
+        # for t_id, thread in threading._active.items():
+        #     if thread is self:
+        #         return t_id
 
     def raise_exception(self):
         thread_id = self.get_id()
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,ctypes.py_object(SystemExit))
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
         if res > 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
 
-class optionscontroller:
+
+class OptionsController:
     def __init__(self, root, update, index, datareset):
         self.__stopmiddlepagefunc = None
         self.__startmiddlepagefunc = None
@@ -52,13 +57,14 @@ class optionscontroller:
         self.index = index
         self.__startfun = None
         self.__stopfun = None
+        self.updatethr = None
         self.createupdatethread()
         controller = LabelFrame(self.root, text="Controller", padx=100)
         self.__setcontroller(root=controller)
         controller.pack(side=BOTTOM)
 
     def createupdatethread(self):
-        self.updatethr = updatethread(updatefunc=self.__updatedata)
+        self.updatethr = UpdateThread(updatefunc=self.__updatedata)
 
     def __setcontroller(self, root):
         self.Timer = Label(root, text="Press start", width=15)
@@ -101,7 +107,7 @@ class optionscontroller:
 
     def __start(self):
         self.Timer.config(text=time.strftime("%H : %M: %S"))
-        if self.stopped == False:
+        if not self.stopped:
             self.__updatedata()
             # try:
             #     if self.updatethr.started == None:
@@ -113,7 +119,7 @@ class optionscontroller:
             self.Timer.after(ms=1000, func=self.__start)
 
 
-class optionindex:
+class OptionIndex:
     def __init__(self, root, index):
         self.__homepageerrorlabel = None
         self.__index = index
@@ -122,15 +128,13 @@ class optionindex:
         self.__root = root
         self.__statfun = None
         self.__stopfun = None
-        Table = LabelFrame(self.__root, text="OPTION CHAIN DATA", bg=None)
-        Headinglabel = Label(Table, text="NOT YET STARTED")
-        Headinglabel.grid(row=0, column=0, columnspan=3)
-        self.__CALLS = LabelFrame(Table, text="CALLS")
-        self.__Strikeprice = LabelFrame(Table, text="STRIKE PRICE")
-        self.__PUTS = LabelFrame(Table, text="PUTS")
-        self.__frames = {}
-        self.__frames[Const.HEADING] = Headinglabel
-        self.__frames[Const.BODY] = []
+        table = LabelFrame(self.__root, text="OPTION CHAIN DATA", bg=None)
+        headinglabel = Label(table, text="NOT YET STARTED")
+        headinglabel.grid(row=0, column=0, columnspan=3)
+        self.__CALLS = LabelFrame(table, text="CALLS")
+        self.__Strikeprice = LabelFrame(table, text="STRIKE PRICE")
+        self.__PUTS = LabelFrame(table, text="PUTS")
+        self.__frames = {Const.HEADING: headinglabel, Const.BODY: []}
 
         self.__CALLSOI = LabelFrame(self.__CALLS, text=Const.OI)
         self.__CALLSLTP = LabelFrame(self.__CALLS, text=Const.LTP)
@@ -149,12 +153,12 @@ class optionindex:
         self.__Strike = LabelFrame(self.__Strikeprice, text=Const.STRIKE_PRICE)
         self.__Strike.grid(row=0, column=0)
 
-        self.Controller = optionscontroller(root=self.__root, update=self.__updatedata, index=index,
+        self.Controller = OptionsController(root=self.__root, update=self.__updatedata, index=index,
                                             datareset=self.__request.reset_data)
         self.Controller.stopped = False
         self.__frames[Const.ERROR] = self.Controller.errorlabel
         self.settablestructure()
-        Table.pack()
+        table.pack()
 
     def linkedtohomepage(self, startfun, stopfunc, homepageerrorlabel):
         self.__homepageerrorlabel = homepageerrorlabel
@@ -167,7 +171,6 @@ class optionindex:
     def settablestructure(self):
         self.__setcolumnpositions()
         self.__loadrows()
-
 
     def __setcolumnpositions(self):
         self.__CALLS.grid(row=1, column=Const.CALLS_POS[self.__index] - 1)
@@ -237,12 +240,12 @@ class optionindex:
                         t[i][j].destroy()
             self.__frames[Const.BODY].pop(-1)
 
-    def __setheading(self, Time, date, price, marketstatus):
+    def __setheading(self, markettime, date, price, marketstatus):
         optionname = getname(index=self.__index)
         s = optionname + " " + str(price)
         my_notebook.tab(self.__index + 1, text=s)
-        s = optionname + " : " + str(price) + " as of " + Time + " on " + date + (
-            ", Market has been closed" if marketstatus == False else "")
+        s = optionname + " : " + str(price) + " as of " + markettime + " on " + date + (
+            ", Market has been closed" if not marketstatus else "")
         self.__frames[Const.HEADING].config(text=s)
 
     def __setattribute(self, data, label):
@@ -262,10 +265,10 @@ class optionindex:
 
     def __updatedata(self):
         DATA = self.__request.request_data
-        if DATA == None:
+        if DATA is None:
             return
         data = self.__Dataformatter.update_data(DATA)
-        if data[Const.ERROR] != None:
+        if data[Const.ERROR] is not None:
             if data[Const.ERROR] == Const.NO_INTERNET:
                 self.__frames[Const.ERROR].config(text="NO INTERNET, CHECK YOUR CONNECTION", width=50)
                 # self.__homepageerrorlabel.config(text="NO INTERNET, CHECK YOUR CONNECTION")
@@ -278,7 +281,7 @@ class optionindex:
             self.__frames[Const.ERROR].config(text="", width=0)
 
         self.__setheading(price=data[Const.PRICE],
-                          Time=data[Const.TIME],
+                          markettime=data[Const.TIME],
                           date=data[Const.DATE],
                           marketstatus=data[Const.MARKET_STATUS])
         strikeprices = data[Const.STRIKES_LIST]
@@ -306,7 +309,7 @@ class Optionchaindataset:
         self.__setuplowerframe(root=self.__lowerframe)
         self.__setentrylist()
         self.__setvalues()
-        option.linkedtohomepage(startfun=self.Disableall, stopfunc=self.Enableall, homepageerrorlabel=self.__errorLabel)
+        option.linkedtohomepage(startfun=self.disableall, stopfunc=self.enableall, homepageerrorlabel=self.__errorLabel)
         self.__upperframe.pack(side=TOP)
         self.__lowerframe.pack(side=BOTTOM)
         frame.pack(side=packside, expand=1, fill="both")
@@ -333,17 +336,17 @@ class Optionchaindataset:
         self.entrylist.append(self.__upvaluesentry)
         self.entrylist.append(self.__downvaluesentry)
 
-    def Disableupperframe(self):
+    def disableupperframe(self):
         for child in self.__upperframe.winfo_children():
             if child != self.__errorLabel:
                 child.configure(state=DISABLED)
 
-    def Enableupperframe(self):
+    def enableupperframe(self):
         for child in self.__upperframe.winfo_children():
             child.configure(state=NORMAL)
 
-    def Disableall(self):
-        self.Disableupperframe()
+    def disableall(self):
+        self.disableupperframe()
         self.resetbut.config(state=DISABLED)
         self.restorebut.config(state=DISABLED)
         self.savebut.config(state=DISABLED)
@@ -351,8 +354,8 @@ class Optionchaindataset:
         self.startbut.config(state=DISABLED)
         self.stopbut.config(state=NORMAL)
 
-    def Enableall(self):
-        self.Enableupperframe()
+    def enableall(self):
+        self.enableupperframe()
         self.resetbut.config(state=NORMAL)
         self.restorebut.config(state=NORMAL)
         self.savebut.config(state=NORMAL)
@@ -572,7 +575,7 @@ class Homemiddlepage:
         main.quit()
         exit(0)
 
-    def Disableall(self):
+    def disableall(self):
         self.__stopbut.config(state=NORMAL)
         self.__startbut.config(state=DISABLED)
         self.__resetbut.config(state=DISABLED)
@@ -580,7 +583,7 @@ class Homemiddlepage:
         self.__loadbut.config(state=DISABLED)
         self.__savebut.config(state=DISABLED)
 
-    def Enableall(self):
+    def enableall(self):
         self.__stopbut.config(state=DISABLED)
         self.__startbut.config(state=NORMAL)
         self.__resetbut.config(state=NORMAL)
@@ -593,16 +596,16 @@ class Homemiddlepage:
         if index == Const.NIFTY:
             # print("nifty started")
             self.__niftystarted = True
-            self.__nifty.Disableall()
+            self.__nifty.disableall()
         if index == Const.BANK_NIFTY:
             # print("bank nifty started")
             self.__bankniftystarted = True
-            self.__banknifty.Disableall()
+            self.__banknifty.disableall()
 
         if self.__niftystarted and self.__bankniftystarted:
-            self.Disableall()
+            self.disableall()
         else:
-            self.Enableall()
+            self.enableall()
         # print(index,"nifty started in start func:", self.__niftystarted)
         # print(index,"bank nifty started in start func:", self.__bankniftystarted)
         # print("")
@@ -610,15 +613,15 @@ class Homemiddlepage:
     def stopfunc(self, index):
         if index == Const.NIFTY:
             self.__niftystarted = False
-            self.__nifty.Enableall()
+            self.__nifty.enableall()
         if index == Const.BANK_NIFTY:
             self.__bankniftystarted = False
-            self.__banknifty.Enableall()
+            self.__banknifty.enableall()
 
         if self.__niftystarted and self.__bankniftystarted:
-            self.Disableall()
+            self.disableall()
         else:
-            self.Enableall()
+            self.enableall()
         # print(index,"nifty started in stopfunc:", self.__niftystarted)
         # print(index,"bank nifty started in stopfunc:", self.__bankniftystarted)
         # print("")
@@ -638,7 +641,7 @@ class Homemiddlepage:
             self.__bankniftystarted = True
 
     def stoppressed(self):
-        self.Enableall()
+        self.enableall()
         if self.__niftystarted:
             self.__nifty.stoppressed()
             self.__niftystarted = False
@@ -663,9 +666,9 @@ class Homemiddlepage:
     def sameasniftypressed(self):
         if self.__sameasnifty.get() == 1:
             self.__loadvaluestoother()
-            self.__banknifty.Disableupperframe()
+            self.__banknifty.disableupperframe()
         else:
-            self.__banknifty.Enableupperframe()
+            self.__banknifty.enableupperframe()
 
     def __loadvaluestoother(self):
         for i in range(18):
@@ -676,11 +679,11 @@ class Homemiddlepage:
 class HomePage:
     def __init__(self, root, niftypage, bankniftypage):
         self.__root = root
-        Homepage = Frame(root, width=1071, height=483)
-        nifty = Optionchaindataset(root=Homepage, index=Const.NIFTY, packside=LEFT, option=niftypage)
-        banknifty = Optionchaindataset(root=Homepage, index=Const.BANK_NIFTY, packside=RIGHT, option=bankniftypage)
-        Homemiddlepage(root=Homepage, banknifty=banknifty, nifty=nifty)
-        Homepage.pack(fill="both", expand=1)
+        homepage = Frame(root, width=1071, height=483)
+        nifty = Optionchaindataset(root=homepage, index=Const.NIFTY, packside=LEFT, option=niftypage)
+        banknifty = Optionchaindataset(root=homepage, index=Const.BANK_NIFTY, packside=RIGHT, option=bankniftypage)
+        Homemiddlepage(root=homepage, banknifty=banknifty, nifty=nifty)
+        homepage.pack(fill="both", expand=1)
 
 
 if __name__ == "__main__":
@@ -695,17 +698,17 @@ if __name__ == "__main__":
     main = Tk(className="Option-Chain Data")
     try:
         main.iconbitmap(os.getcwd() + "dependencies/logo.ico")
-    except:
+    except Exception as e:
         pass  # do nothing with logo
     main.geometry(getsizeandpos(width=Const.WINDOW_WIDTH, height=Const.WINDOW_HEIGHT))
     my_notebook = ttk.Notebook(main)
 
     NiftyPage = Frame(my_notebook, width=1, height=483)
-    niftypageobject = optionindex(root=NiftyPage, index=Const.NIFTY)
+    niftypageobject = OptionIndex(root=NiftyPage, index=Const.NIFTY)
     NiftyPage.pack(fill="both", expand=1)
 
     BankNiftyPage = Frame(my_notebook, width=1071, height=483)
-    bankniftypageobject = optionindex(root=BankNiftyPage, index=Const.BANK_NIFTY)
+    bankniftypageobject = OptionIndex(root=BankNiftyPage, index=Const.BANK_NIFTY)
     BankNiftyPage.pack(fill="both", expand=1)
 
     Homepage = Frame(my_notebook, width=1071, height=483)
